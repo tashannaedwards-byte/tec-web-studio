@@ -7,9 +7,6 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <!-- PayPal SDK — Live Client ID connected -->
   <script src="https://www.paypal.com/sdk/js?client-id=Ae0VR-L2B4DenAYy3NPAyRSXEX7BxSXWINaZIIhtQD8tMhniKndsLtrADeWyEf4J_JRr7of87Luc2H4L&currency=USD&components=buttons,applepay,googlepay"></script>
-  <!-- Apple Pay button styles + web component -->
-  <link rel="stylesheet" href="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-button.css">
-  <script src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-button.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1144,6 +1141,9 @@
 
   // ─── APPLE PAY ────────────────────────────────────────
   function initApplePay() {
+    // Only run on Safari — Chrome and other browsers can't render the Apple Pay button
+    var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if (!isSafari) return;
     if (typeof paypal === 'undefined' || !paypal.Applepay) return;
     var applepay = paypal.Applepay();
     applepay.config().then(function(config) {
