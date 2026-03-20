@@ -1,4 +1,5 @@
 [functions]
   # tells Netlify where your functions live
   directory = "netlify/functions"
-  node_bundler = "esbuild"
+[functions]
+  directory = "netlify/functions"
