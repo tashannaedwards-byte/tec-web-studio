@@ -7,6 +7,8 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <!-- PayPal SDK — Live Client ID connected -->
   <script src="https://www.paypal.com/sdk/js?client-id=Ae0VR-L2B4DenAYy3NPAyRSXEX7BxSXWINaZIIhtQD8tMhniKndsLtrADeWyEf4J_JRr7of87Luc2H4L&currency=USD&components=buttons,applepay,googlepay"></script>
+  <!-- Apple Pay button styles -->
+  <link rel="stylesheet" href="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-button.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1139,63 +1141,12 @@
     document.getElementById('alt-pay-divider').style.display     = 'none';
   }
 
-  // ─── APPLE PAY DEBUG HELPER ───────────────────────────
-  function appleDebug(msg, color) {
-    color = color || '#1a3d3d';
-    var box = document.getElementById('apple-debug-box');
-    if (!box) {
-      box = document.createElement('div');
-      box.id = 'apple-debug-box';
-      box.style.cssText = 'margin:16px 0;padding:14px 18px;border-radius:10px;background:#fff8e1;border:2px solid #F5C842;font-size:13px;font-family:monospace;line-height:1.8;word-break:break-word;';
-      box.innerHTML = '<strong style="display:block;margin-bottom:6px;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#c9a020;">🔍 Apple Pay Debug</strong>';
-      var container = document.getElementById('applepay-container');
-      if (container) container.parentNode.insertBefore(box, container);
-      else document.querySelector('.container').prepend(box);
-    }
-    var line = document.createElement('div');
-    line.style.color = color;
-    line.textContent = '› ' + msg;
-    box.appendChild(line);
-  }
-
   // ─── APPLE PAY ────────────────────────────────────────
   function initApplePay() {
-    appleDebug('initApplePay() called');
-
-    if (typeof paypal === 'undefined') {
-      appleDebug('❌ PayPal SDK not loaded at all', '#c0392b'); return;
-    }
-    appleDebug('✅ PayPal SDK loaded');
-
-    if (!paypal.Applepay) {
-      appleDebug('❌ paypal.Applepay is not available — SDK may not include applepay component', '#c0392b'); return;
-    }
-    appleDebug('✅ paypal.Applepay component found');
-
-    if (typeof ApplePaySession === 'undefined') {
-      appleDebug('❌ ApplePaySession undefined — not Safari or Apple Pay not supported on this browser', '#c0392b'); return;
-    }
-    appleDebug('✅ ApplePaySession exists (correct browser)');
-
-    if (!ApplePaySession.canMakePayments()) {
-      appleDebug('❌ ApplePaySession.canMakePayments() = false — device may have no cards in Wallet', '#e67e22'); 
-    } else {
-      appleDebug('✅ ApplePaySession.canMakePayments() = true');
-    }
-
+    if (typeof paypal === 'undefined' || !paypal.Applepay) return;
     var applepay = paypal.Applepay();
-    appleDebug('Calling applepay.config()...');
-
     applepay.config().then(function(config) {
-      appleDebug('config() resolved. isEligible = ' + config.isEligible);
-      appleDebug('Full config: ' + JSON.stringify(config));
-
-      if (!config.isEligible) {
-        appleDebug('❌ isEligible is false — Apple Pay button will NOT show. See config above for clues.', '#c0392b');
-        return;
-      }
-
-      appleDebug('✅ isEligible = true — showing Apple Pay button', '#27ae60');
+      if (!config.isEligible) return;
       document.getElementById('applepay-container').style.display = 'block';
       document.getElementById('alt-pay-divider').style.display    = 'flex';
       document.getElementById('applepay-container').innerHTML =
@@ -1234,9 +1185,7 @@
         };
         session.begin();
       });
-    }).catch(function(e) {
-      appleDebug('❌ applepay.config() threw an error: ' + (e && (e.message || JSON.stringify(e))), '#c0392b');
-    });
+    }).catch(function(e) { console.error('Apple Pay config error', e); });
   }
 
   // ─── GOOGLE PAY ───────────────────────────────────────
