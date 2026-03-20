@@ -7,8 +7,9 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <!-- PayPal SDK — Live Client ID connected -->
   <script src="https://www.paypal.com/sdk/js?client-id=Ae0VR-L2B4DenAYy3NPAyRSXEX7BxSXWINaZIIhtQD8tMhniKndsLtrADeWyEf4J_JRr7of87Luc2H4L&currency=USD&components=buttons,applepay,googlepay"></script>
-  <!-- Apple Pay button styles -->
+  <!-- Apple Pay button styles + web component -->
   <link rel="stylesheet" href="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-button.css">
+  <script src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-button.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1150,7 +1151,7 @@
       document.getElementById('applepay-container').style.display = 'block';
       document.getElementById('alt-pay-divider').style.display    = 'flex';
       document.getElementById('applepay-container').innerHTML =
-        '<apple-pay-button id="apple-pay-btn" buttonstyle="black" type="buy" locale="en-US"></apple-pay-button>';
+        '<button id="apple-pay-btn" style="-webkit-appearance:none;appearance:none;display:block;width:100%;background:#000;border:none;border-radius:50px;min-height:48px;cursor:pointer;background-image:-webkit-named-image(apple-pay-logo-white);background-repeat:no-repeat;background-position:center;background-size:auto 58%;"></button>';
 
       document.getElementById('apple-pay-btn').addEventListener('click', function() {
         if (!selectedPackage) { alert('Please select a package before proceeding to payment.'); return; }
