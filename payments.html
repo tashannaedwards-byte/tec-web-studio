@@ -1249,11 +1249,14 @@
     }).catch(function(e) { console.error('Google Pay config error', e); });
   }
 
-  // Load Google Pay SDK then init both wallet buttons
+  // Apple Pay initializes immediately — no dependency on Google Pay SDK
+  initApplePay();
+
+  // Google Pay needs its own SDK loaded first
   (function() {
     var s = document.createElement('script');
     s.src = 'https://pay.google.com/gp/p/js/pay.js';
-    s.onload = function() { initApplePay(); initGooglePay(); };
+    s.onload = function() { initGooglePay(); };
     document.head.appendChild(s);
   })();
 
