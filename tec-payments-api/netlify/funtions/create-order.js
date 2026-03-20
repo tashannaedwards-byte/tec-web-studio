@@ -2,15 +2,28 @@
 // Deploys to Netlify as a serverless function.
 // This creates a PayPal order for Apple Pay / Google Pay to confirm.
 
-export async function handler(event) {
+exports.handler = async function(event) {
+  // Handle CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers: {
+        'Access-Control-Allow-Origin':  '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+      },
+      body: ''
+    };
+  }
+
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const PAYPAL_CLIENT_ID     = process.env.Ae0VR-L2B4DenAYy3NPAyRSXEX7BxSXWINaZIIhtQD8tMhniKndsLtrADeWyEf4J_JRr7of87Luc2H4L;
-  const PAYPAL_CLIENT_SECRET = process.env.EL2Lw8IR8zpq7HUlDVpraNkrzKh_AeNKx6fFN_TK340W_x8wVe1_nKMXX3lG8uopMvVFkw0DwTk6QAk7;
-  const PAYPAL_API           = 'https://api-m.paypal.com'; // live endpoint
+  const PAYPAL_CLIENT_ID     = process.env.PAYPAL_CLIENT_ID;
+  const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET;
+  const PAYPAL_API           = 'https://api-m.paypal.com';
 
   try {
     const { amount, description } = JSON.parse(event.body);
@@ -53,7 +66,7 @@ export async function handler(event) {
       statusCode: 200,
       headers: {
         'Content-Type':                'application/json',
-        'Access-Control-Allow-Origin': '*' // allows your GitHub Pages site to call this
+        'Access-Control-Allow-Origin': '*'
       },
       body: JSON.stringify({ id: order.id })
     };
@@ -66,4 +79,4 @@ export async function handler(event) {
       body: JSON.stringify({ error: 'Failed to create order' })
     };
   }
-}
+};
