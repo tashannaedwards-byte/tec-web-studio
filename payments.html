@@ -1170,21 +1170,43 @@
         };
 
         session.onpaymentauthorized = function(event) {
-          var paymentToken = event.payment.token;
+          var p = event.payment;
+          console.log('Full payment object:', JSON.stringify(p));
 
-          // Create order then confirm and capture entirely server-side
+          // Extract the token — structure varies by device/iOS version
+          var rawToken = p.token;
+          var tokenToSend;
+
+          if (rawToken && rawToken.paymentData) {
+            // Standard structure: token.paymentData contains the actual data
+            tokenToSend = {
+              version:   rawToken.version,
+              data:      rawToken.paymentData.data,
+              signature: rawToken.paymentData.signature,
+              header:    rawToken.paymentData.header
+            };
+          } else if (rawToken && rawToken.data) {
+            // Flat structure
+            tokenToSend = {
+              version:   rawToken.version,
+              data:      rawToken.data,
+              signature: rawToken.signature,
+              header:    rawToken.header
+            };
+          } else {
+            // Send the whole token object as-is
+            tokenToSend = rawToken;
+          }
+
+          console.log('Token being sent:', JSON.stringify(tokenToSend));
+
           fetch(NETLIFY_FN, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              amount:      currentTotal.toFixed(2),
-              description: buildOrderDescription(),
-              applePayToken: {
-                version:   paymentToken.paymentData ? paymentToken.version : undefined,
-                data:      paymentToken.paymentData ? paymentToken.paymentData.data : paymentToken.data,
-                signature: paymentToken.paymentData ? paymentToken.paymentData.signature : paymentToken.signature,
-                header:    paymentToken.paymentData ? paymentToken.paymentData.header : paymentToken.header
-              }
+              amount:        currentTotal.toFixed(2),
+              description:   buildOrderDescription(),
+              applePayToken: tokenToSend
             })
           })
           .then(function(r) { return r.json(); })
