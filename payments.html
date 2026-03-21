@@ -340,6 +340,8 @@
   <div class="payment-section">
     <p class="payment-note"><strong>Secure checkout via Stripe.</strong> Apple Pay, Google Pay, Afterpay, Klarna, credit &amp; debit cards all accepted.</p>
     <div class="disabled-notice" id="no-selection-notice">⚠️ Please select a package above before proceeding to payment.</div>
+    <div class="disabled-notice" id="no-hosting-notice" style="display:none;">⚠️ Please select a hosting platform in Step 3 before proceeding to payment.</div>
+    <div class="disabled-notice" id="no-setup-notice" style="display:none;">⚠️ Please answer the hosting setup question in Step 3 before proceeding to payment.</div>
     <div id="express-checkout-element"></div>
     <div class="or-divider" id="or-divider" style="display:none;">
       <div></div><span>or pay with card</span><div></div>
@@ -445,6 +447,8 @@
     document.querySelectorAll('.setup-opt').forEach(function(o) { o.classList.remove('selected'); });
     document.getElementById('setup-' + choice).classList.add('selected');
     needsSetupHelp = choice;
+    updateSummary();
+    initStripe();
   }
 
   function updateSummary() {
@@ -484,6 +488,11 @@
     currentTotal = total;
     totalDisplay.textContent = '$' + total;
     noSelectionNotice.style.display = selectedPackage ? 'none' : 'block';
+
+    var noHostingNotice = document.getElementById('no-hosting-notice');
+    var noSetupNotice = document.getElementById('no-setup-notice');
+    if (noHostingNotice) noHostingNotice.style.display = (selectedPackage && !selectedHosting) ? 'block' : 'none';
+    if (noSetupNotice) noSetupNotice.style.display = (selectedPackage && selectedHosting && !needsSetupHelp) ? 'block' : 'none';
   }
 
   function buildDescription() {
@@ -530,6 +539,8 @@
   var stripeInitTimer = null;
   function initStripe() {
     if (!selectedPackage || currentTotal <= 0) return;
+    // Don't init Stripe until hosting and setup are selected
+    if (!selectedHosting || !needsSetupHelp) return;
     clearTimeout(stripeInitTimer);
     stripeInitTimer = setTimeout(function() { _initStripe(); }, 300);
   }
