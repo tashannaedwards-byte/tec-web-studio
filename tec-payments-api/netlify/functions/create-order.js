@@ -20,32 +20,29 @@ exports.handler = async function(event) {
   const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 
   try {
-    const { amount, description, currency } = JSON.parse(event.body);
+    const { amount, description } = JSON.parse(event.body);
+
+    // Build form-encoded body for Stripe API
+    const params = new URLSearchParams();
+    params.append('amount', String(Math.round(amount)));
+    params.append('currency', 'usd');
+    params.append('description', description || 'TEC Web Studio Services');
+    params.append('automatic_payment_methods[enabled]', 'true');
 
     const response = await fetch('https://api.stripe.com/v1/payment_intents', {
       method: 'POST',
       headers: {
-        'Authorization': 'Basic ' + Buffer.from(STRIPE_SECRET_KEY + ':').toString('base64'),
+        'Authorization': 'Bearer ' + STRIPE_SECRET_KEY,
         'Content-Type':  'application/x-www-form-urlencoded'
       },
-      body: new URLSearchParams({
-        amount:                        String(amount),
-        currency:                      currency || 'usd',
-        description:                   description || 'TEC Web Studio Services',
-        'payment_method_types[]':      'card',
-        'payment_method_types[]':      'apple_pay',
-        'payment_method_types[]':      'google_pay',
-        'payment_method_types[]':      'afterpay_clearpay',
-        'payment_method_types[]':      'klarna',
-        'payment_method_types[]':      'affirm',
-        automatic_payment_methods:     'enabled',
-      }).toString().replace('automatic_payment_methods=enabled', 'automatic_payment_methods[enabled]=true')
+      body: params.toString()
     });
 
     const paymentIntent = await response.json();
-    console.log('PaymentIntent:', JSON.stringify(paymentIntent));
+    console.log('PaymentIntent created:', paymentIntent.id, 'status:', paymentIntent.status);
 
     if (paymentIntent.error) {
+      console.error('Stripe error:', paymentIntent.error);
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
