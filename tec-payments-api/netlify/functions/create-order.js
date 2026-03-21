@@ -22,12 +22,12 @@ exports.handler = async function(event) {
   try {
     const { amount, description } = JSON.parse(event.body);
 
-    // Build form-encoded body for Stripe API
     const params = new URLSearchParams();
     params.append('amount', String(Math.round(amount)));
     params.append('currency', 'usd');
     params.append('description', description || 'TEC Web Studio Services');
     params.append('automatic_payment_methods[enabled]', 'true');
+    params.append('automatic_payment_methods[allow_redirects]', 'always');
 
     const response = await fetch('https://api.stripe.com/v1/payment_intents', {
       method: 'POST',
@@ -39,10 +39,9 @@ exports.handler = async function(event) {
     });
 
     const paymentIntent = await response.json();
-    console.log('PaymentIntent created:', paymentIntent.id, 'status:', paymentIntent.status);
+    console.log('PaymentIntent:', paymentIntent.id, paymentIntent.status);
 
     if (paymentIntent.error) {
-      console.error('Stripe error:', paymentIntent.error);
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
