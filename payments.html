@@ -1148,7 +1148,7 @@
       document.getElementById('applepay-container').style.display = 'block';
       document.getElementById('alt-pay-divider').style.display    = 'flex';
       document.getElementById('applepay-container').innerHTML =
-        '<apple-pay-button id="apple-pay-btn" buttonstyle="black" type="buy" locale="en-US"></apple-pay-button>';
+        '<button id="apple-pay-btn" style="-webkit-appearance:none;appearance:none;display:block;width:100%;background:#000;border:none;border-radius:50px;min-height:48px;cursor:pointer;background-image:-webkit-named-image(apple-pay-logo-white);background-repeat:no-repeat;background-position:center;background-size:auto 58%;"></button>';
 
       document.getElementById('apple-pay-btn').addEventListener('click', function() {
         if (!selectedPackage) { alert('Please select a package before proceeding to payment.'); return; }
@@ -1265,11 +1265,14 @@
     }).catch(function(e) { console.error('Google Pay config error', e); });
   }
 
-  // Load Google Pay SDK then init both wallet buttons
+  // Apple Pay initializes immediately — no dependency on Google Pay SDK
+  initApplePay();
+
+  // Google Pay needs its own SDK loaded first
   (function() {
     var s = document.createElement('script');
     s.src = 'https://pay.google.com/gp/p/js/pay.js';
-    s.onload = function() { initApplePay(); initGooglePay(); };
+    s.onload = function() { initGooglePay(); };
     document.head.appendChild(s);
   })();
 
