@@ -25,8 +25,8 @@ exports.handler = async function(event) {
     const body        = JSON.parse(event.body);
     const amount      = body.amount;
     const description = body.description || 'TEC Web Studio Services';
-    const token       = body.token;       // Apple Pay token (if confirming)
-    const orderId     = body.orderId;     // existing order ID (if confirming)
+    const token       = body.token;
+    const orderId     = body.orderId;
 
     // ── Get access token ────────────────────────────────────
     const authRes = await fetch(`${PAYPAL_API}/v1/oauth2/token`, {
@@ -41,7 +41,23 @@ exports.handler = async function(event) {
 
     // ── If we have a token + orderId, confirm & capture ─────
     if (orderId && token) {
-      // Step A: Confirm the order with the Apple Pay token
+      console.log('Raw Apple Pay token received:', JSON.stringify(token));
+
+      // PayPal expects this exact structure for the Apple Pay token
+      const applePayToken = {
+        version:   token.paymentData  ? token.version  : token.version,
+        data:      token.paymentData  ? token.paymentData.data      : token.data,
+        signature: token.paymentData  ? token.paymentData.signature : token.signature,
+        header: {
+          ephemeralPublicKey: token.paymentData ? token.paymentData.header.ephemeralPublicKey : token.header.ephemeralPublicKey,
+          publicKeyHash:      token.paymentData ? token.paymentData.header.publicKeyHash      : token.header.publicKeyHash,
+          transactionId:      token.paymentData ? token.paymentData.header.transactionId      : token.header.transactionId
+        }
+      };
+
+      console.log('Formatted Apple Pay token:', JSON.stringify(applePayToken));
+
+      // Confirm payment source
       const confirmRes = await fetch(`${PAYPAL_API}/v2/checkout/orders/${orderId}/confirm-payment-source`, {
         method: 'POST',
         headers: {
@@ -52,7 +68,7 @@ exports.handler = async function(event) {
         body: JSON.stringify({
           payment_source: {
             apple_pay: {
-              token: token
+              token: applePayToken
             }
           }
         })
@@ -60,7 +76,15 @@ exports.handler = async function(event) {
       const confirmed = await confirmRes.json();
       console.log('Confirm response:', JSON.stringify(confirmed));
 
-      // Step B: Capture the order
+      if (confirmed.name === 'INVALID_REQUEST' || confirmed.name === 'UNPROCESSABLE_ENTITY') {
+        return {
+          statusCode: 400,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          body: JSON.stringify({ success: false, error: 'Confirm failed', details: confirmed })
+        };
+      }
+
+      // Capture the order
       const captureRes = await fetch(`${PAYPAL_API}/v2/checkout/orders/${orderId}/capture`, {
         method: 'POST',
         headers: {
@@ -78,7 +102,7 @@ exports.handler = async function(event) {
         return {
           statusCode: 200,
           headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-          body: JSON.stringify({ success: true, capture: captured })
+          body: JSON.stringify({ success: true })
         };
       } else {
         return {
@@ -89,7 +113,7 @@ exports.handler = async function(event) {
       }
     }
 
-    // ── Otherwise, just create the order ────────────────────
+    // ── Create order ─────────────────────────────────────────
     const orderRes = await fetch(`${PAYPAL_API}/v2/checkout/orders`, {
       method: 'POST',
       headers: {
