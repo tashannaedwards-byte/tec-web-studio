@@ -7,6 +7,8 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <!-- PayPal SDK — Live Client ID connected -->
   <script src="https://www.paypal.com/sdk/js?client-id=Ae0VR-L2B4DenAYy3NPAyRSXEX7BxSXWINaZIIhtQD8tMhniKndsLtrADeWyEf4J_JRr7of87Luc2H4L&currency=USD&components=buttons,applepay,googlepay"></script>
+  <!-- Apple Pay SDK -->
+  <script src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1152,48 +1154,56 @@
 
       document.getElementById('apple-pay-btn').addEventListener('click', function() {
         if (!selectedPackage) { alert('Please select a package before proceeding to payment.'); return; }
-        var session = new ApplePaySession(4, {
-          countryCode:          config.countryCode,
+
+        var session = new ApplePaySession(3, {
+          countryCode:          'US',
+          currencyCode:         'USD',
           merchantCapabilities: config.merchantCapabilities,
           supportedNetworks:    config.supportedNetworks,
-          currencyCode:         'USD',
           total: { label: 'TEC Web Studio', type: 'final', amount: currentTotal.toFixed(2) }
         });
+
         session.onvalidatemerchant = function(event) {
           applepay.validateMerchant({ validationUrl: event.validationURL })
             .then(function(p) { session.completeMerchantValidation(p.merchantSession); })
-            .catch(function(e) { console.error(e); session.abort(); });
+            .catch(function(e) { console.error('Merchant validation error:', e); session.abort(); });
         };
+
         session.onpaymentauthorized = function(event) {
-          // Step 1: Create order with Apple Pay payment source
+          var paymentToken = event.payment.token;
+
+          // Create order then confirm and capture entirely server-side
           fetch(NETLIFY_FN, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              amount: currentTotal.toFixed(2),
+              amount:      currentTotal.toFixed(2),
               description: buildOrderDescription(),
-              isApplePay: true
+              applePayToken: {
+                version:   paymentToken.paymentData ? paymentToken.version : undefined,
+                data:      paymentToken.paymentData ? paymentToken.paymentData.data : paymentToken.data,
+                signature: paymentToken.paymentData ? paymentToken.paymentData.signature : paymentToken.signature,
+                header:    paymentToken.paymentData ? paymentToken.paymentData.header : paymentToken.header
+              }
             })
           })
           .then(function(r) { return r.json(); })
-          .then(function(order) {
-            // Step 2: Let PayPal SDK confirm with the Apple Pay token
-            return applepay.confirmOrder({
-              orderId: order.id,
-              token: event.payment.token,
-              billingContact: event.payment.billingContact
-            });
-          })
-          .then(function() {
-            session.completePayment(ApplePaySession.STATUS_SUCCESS);
-            submitToJotform('', '');
-            showPaymentSuccess('');
+          .then(function(result) {
+            if (result.success) {
+              session.completePayment(ApplePaySession.STATUS_SUCCESS);
+              submitToJotform('', '');
+              showPaymentSuccess('');
+            } else {
+              console.error('Payment failed:', JSON.stringify(result));
+              session.completePayment(ApplePaySession.STATUS_FAILURE);
+            }
           })
           .catch(function(e) {
-            console.error('Apple Pay error:', e);
+            console.error('Apple Pay fetch error:', e);
             session.completePayment(ApplePaySession.STATUS_FAILURE);
           });
         };
+
         session.begin();
       });
     }).catch(function(e) { console.error('Apple Pay config error', e); });
