@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TEC Web Studio – Payment</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <script src="https://js.stripe.com/v3/"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -354,11 +353,11 @@
 
 <footer>&copy; 2026 <strong>TEC Web Studio</strong> · Secure payments powered by Stripe</footer>
 
+<script src="https://js.stripe.com/v3/"></script>
 <script>
+  var stripe = Stripe('pk_live_51TDUtoFUlbNwdF4YaCjZiGbEobOmm5XKIUzt6T1zQeMgMdZpzKHLjqaRf92xhJYWz05kwDUAoktYWDxGVxx32Z7n00IGkV75LZ');
   var NETLIFY_FN = 'https://dainty-rugelach-661911.netlify.app/.netlify/functions/create-order';
-  var STRIPE_PK  = 'pk_live_51TDUtoFUlbNwdF4YaCjZiGbEobOmm5XKIUzt6T1zQeMgMdZpzKHLjqaRf92xhJYWz05kwDUAoktYWDxGVxx32Z7n00IGkV75LZ';
 
-  var stripe = Stripe(STRIPE_PK);
   var elements, paymentElement, expressElement;
   var clientSecret = null;
 
@@ -371,7 +370,7 @@
   var currentTotal = 0;
 
   var packages = {
-    glowup:       { label: 'The Glow-Up (1–4 pages)', price: 100 },
+    glowup:       { label: 'The Glow-Up (1–4 pages)', price: 0.01 },
     glowup_lg:    { label: 'The Glow-Up (5–8 pages)', price: 200 },
     quickfixes:   { label: '🌱✨ Site Refreshers',     price: 299 },
     doneforyou:   { label: 'Done-for-You Website',    price: 400 },
