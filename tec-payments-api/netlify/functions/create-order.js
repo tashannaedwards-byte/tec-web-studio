@@ -22,12 +22,12 @@ exports.handler = async function(event) {
   const PAYPAL_API           = 'https://api-m.paypal.com';
 
   try {
-    const body        = JSON.parse(event.body);
-    const amount      = body.amount;
-    const description = body.description || 'TEC Web Studio Services';
-    const isApplePay  = body.isApplePay || false;
+    const body          = JSON.parse(event.body);
+    const amount        = body.amount;
+    const description   = body.description || 'TEC Web Studio Services';
+    const applePayToken = body.applePayToken;
 
-    // ── Get access token ────────────────────────────────────
+    // ── Get access token ──────────────────────────────────
     const authRes = await fetch(`${PAYPAL_API}/v1/oauth2/token`, {
       method: 'POST',
       headers: {
@@ -38,19 +38,21 @@ exports.handler = async function(event) {
     });
     const { access_token } = await authRes.json();
 
-    // ── Create order ─────────────────────────────────────────
+    // ── Create order ──────────────────────────────────────
     const orderPayload = {
       intent: 'CAPTURE',
       purchase_units: [{
         amount: { currency_code: 'USD', value: amount },
         description: description
-      }]
+      }],
+      payment_source: {
+        apple_pay: {
+          token: applePayToken
+        }
+      }
     };
 
-    // Include apple_pay payment_source if this is an Apple Pay order
-    if (isApplePay) {
-      orderPayload.payment_source = { apple_pay: {} };
-    }
+    console.log('Creating order with payload:', JSON.stringify(orderPayload));
 
     const orderRes = await fetch(`${PAYPAL_API}/v2/checkout/orders`, {
       method: 'POST',
@@ -63,13 +65,43 @@ exports.handler = async function(event) {
       body: JSON.stringify(orderPayload)
     });
     const order = await orderRes.json();
-    console.log('Order created:', JSON.stringify(order));
+    console.log('Order response:', JSON.stringify(order));
 
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ id: order.id })
-    };
+    if (!order.id) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ success: false, error: 'Order creation failed', details: order })
+      };
+    }
+
+    // ── Capture order ─────────────────────────────────────
+    const captureRes = await fetch(`${PAYPAL_API}/v2/checkout/orders/${order.id}/capture`, {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${access_token}`,
+        'Prefer':        'return=representation'
+      },
+      body: '{}'
+    });
+    const captured = await captureRes.json();
+    console.log('Capture response:', JSON.stringify(captured));
+
+    const status = captured?.purchase_units?.[0]?.payments?.captures?.[0]?.status;
+    if (status === 'COMPLETED') {
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ success: true })
+      };
+    } else {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ success: false, details: captured })
+      };
+    }
 
   } catch (err) {
     console.error('Error:', err);
