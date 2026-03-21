@@ -342,6 +342,23 @@
     <div class="disabled-notice" id="no-selection-notice">⚠️ Please select a package above before proceeding to payment.</div>
     <div class="disabled-notice" id="no-hosting-notice" style="display:none;">⚠️ Please select a hosting platform in Step 3 before proceeding to payment.</div>
     <div class="disabled-notice" id="no-setup-notice" style="display:none;">⚠️ Please answer the hosting setup question in Step 3 before proceeding to payment.</div>
+
+    <!-- Cash App Pay Button -->
+    <div id="cashapp-btn-wrap" style="display:none;margin-bottom:12px;">
+      <a id="cashapp-btn" href="https://cash.app/$TECWebs" target="_blank"
+        style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#00D632;color:#fff;border:none;border-radius:8px;padding:0 24px;height:48px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;text-decoration:none;box-sizing:border-box;cursor:pointer;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm1.193 16.91c-.23.86-.96 1.45-1.84 1.55v.61a.56.56 0 01-.56.56h-.7a.56.56 0 01-.56-.56v-.64a4.4 4.4 0 01-2.1-.84.56.56 0 01-.06-.8l.48-.54a.56.56 0 01.77-.06c.47.37 1.01.58 1.6.58.7 0 1.16-.3 1.16-.82 0-.44-.27-.7-1.25-1.01-1.37-.42-2.3-1.01-2.3-2.3 0-.97.67-1.72 1.72-1.98v-.63a.56.56 0 01.56-.56h.7a.56.56 0 01.56.56v.66c.56.1 1.06.33 1.48.67a.56.56 0 01.07.8l-.45.52a.56.56 0 01-.77.08 1.9 1.9 0 00-1.2-.41c-.64 0-1.03.27-1.03.74 0 .42.3.65 1.35 1 1.4.43 2.22 1.06 2.22 2.33z"/>
+        </svg>
+        Pay with Cash App
+      </a>
+    </div>
+
+    <!-- Recurring plan notice -->
+    <div id="recurring-notice" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:12px 16px;font-size:13px;color:#7a5c00;margin-bottom:12px;line-height:1.6;">
+      🔄 <strong>Recurring plan selected:</strong> After your initial payment via Stripe, we'll send a monthly invoice to your email to keep your subscription active. Cash App is not available for recurring plans.
+    </div>
+
     <div id="express-checkout-element"></div>
     <div class="or-divider" id="or-divider" style="display:none;">
       <div></div><span>or pay with card</span><div></div>
@@ -491,8 +508,17 @@
 
     var noHostingNotice = document.getElementById('no-hosting-notice');
     var noSetupNotice = document.getElementById('no-setup-notice');
+    var cashappBtn = document.getElementById('cashapp-btn-wrap');
     if (noHostingNotice) noHostingNotice.style.display = (selectedPackage && !selectedHosting) ? 'block' : 'none';
     if (noSetupNotice) noSetupNotice.style.display = (selectedPackage && selectedHosting && !needsSetupHelp) ? 'block' : 'none';
+    if (cashappBtn) {
+      var isRecurring = maintenancePlan === 'active';
+      cashappBtn.style.display = (selectedPackage && selectedHosting && needsSetupHelp && !isRecurring) ? 'block' : 'none';
+      var cashLink = document.getElementById('cashapp-btn');
+      if (cashLink) cashLink.href = 'https://cash.app/$TECWebs/' + total.toFixed(2);
+      var recurringNotice = document.getElementById('recurring-notice');
+      if (recurringNotice) recurringNotice.style.display = (selectedPackage && selectedHosting && needsSetupHelp && isRecurring) ? 'block' : 'none';
+    }
   }
 
   function buildDescription() {
