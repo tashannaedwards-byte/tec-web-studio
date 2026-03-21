@@ -17,103 +17,47 @@ exports.handler = async function(event) {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  const PAYPAL_CLIENT_ID     = process.env.PAYPAL_CLIENT_ID;
-  const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET;
-  const PAYPAL_API           = 'https://api-m.paypal.com';
+  const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 
   try {
-    const body          = JSON.parse(event.body);
-    const amount        = body.amount;
-    const description   = body.description || 'TEC Web Studio Services';
-    const applePayToken = body.applePayToken;
+    const { amount, description, currency } = JSON.parse(event.body);
 
-    // ── Get access token ──────────────────────────────────
-    const authRes = await fetch(`${PAYPAL_API}/v1/oauth2/token`, {
+    const response = await fetch('https://api.stripe.com/v1/payment_intents', {
       method: 'POST',
       headers: {
-        'Content-Type':  'application/x-www-form-urlencoded',
-        'Authorization': 'Basic ' + Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`).toString('base64')
+        'Authorization': 'Basic ' + Buffer.from(STRIPE_SECRET_KEY + ':').toString('base64'),
+        'Content-Type':  'application/x-www-form-urlencoded'
       },
-      body: 'grant_type=client_credentials'
+      body: new URLSearchParams({
+        amount:                        String(amount),
+        currency:                      currency || 'usd',
+        description:                   description || 'TEC Web Studio Services',
+        'payment_method_types[]':      'card',
+        'payment_method_types[]':      'apple_pay',
+        'payment_method_types[]':      'google_pay',
+        'payment_method_types[]':      'afterpay_clearpay',
+        'payment_method_types[]':      'klarna',
+        'payment_method_types[]':      'affirm',
+        automatic_payment_methods:     'enabled',
+      }).toString().replace('automatic_payment_methods=enabled', 'automatic_payment_methods[enabled]=true')
     });
-    const { access_token } = await authRes.json();
 
-    // ── Build the token — ensure version is always present ─
-    const formattedToken = {
-      version:   applePayToken.version   || 'EC_v1',
-      data:      applePayToken.data,
-      signature: applePayToken.signature,
-      header: {
-        ephemeralPublicKey: applePayToken.header.ephemeralPublicKey,
-        publicKeyHash:      applePayToken.header.publicKeyHash,
-        transactionId:      applePayToken.header.transactionId
-      }
-    };
+    const paymentIntent = await response.json();
+    console.log('PaymentIntent:', JSON.stringify(paymentIntent));
 
-    console.log('Formatted token:', JSON.stringify(formattedToken));
-
-    // ── Create order with Apple Pay token ─────────────────
-    const orderPayload = {
-      intent: 'CAPTURE',
-      purchase_units: [{
-        amount: { currency_code: 'USD', value: amount },
-        description: description
-      }],
-      payment_source: {
-        apple_pay: {
-          token: formattedToken
-        }
-      }
-    };
-
-    const orderRes = await fetch(`${PAYPAL_API}/v2/checkout/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type':      'application/json',
-        'Authorization':     `Bearer ${access_token}`,
-        'PayPal-Request-Id': Date.now().toString(),
-        'Prefer':            'return=representation'
-      },
-      body: JSON.stringify(orderPayload)
-    });
-    const order = await orderRes.json();
-    console.log('Order response:', JSON.stringify(order));
-
-    if (!order.id) {
+    if (paymentIntent.error) {
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ success: false, error: 'Order creation failed', details: order })
+        body: JSON.stringify({ error: paymentIntent.error.message })
       };
     }
 
-    // ── Capture order ─────────────────────────────────────
-    const captureRes = await fetch(`${PAYPAL_API}/v2/checkout/orders/${order.id}/capture`, {
-      method: 'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${access_token}`,
-        'Prefer':        'return=representation'
-      },
-      body: '{}'
-    });
-    const captured = await captureRes.json();
-    console.log('Capture response:', JSON.stringify(captured));
-
-    const status = captured?.purchase_units?.[0]?.payments?.captures?.[0]?.status;
-    if (status === 'COMPLETED') {
-      return {
-        statusCode: 200,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ success: true })
-      };
-    } else {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ success: false, details: captured })
-      };
-    }
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ clientSecret: paymentIntent.client_secret })
+    };
 
   } catch (err) {
     console.error('Error:', err);
