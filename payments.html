@@ -1141,9 +1141,6 @@
 
   // ─── APPLE PAY ────────────────────────────────────────
   function initApplePay() {
-    // Only run on Safari — Chrome and other browsers can't render the Apple Pay button
-    var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    if (!isSafari) return;
     if (typeof paypal === 'undefined' || !paypal.Applepay) return;
     var applepay = paypal.Applepay();
     applepay.config().then(function(config) {
@@ -1151,7 +1148,7 @@
       document.getElementById('applepay-container').style.display = 'block';
       document.getElementById('alt-pay-divider').style.display    = 'flex';
       document.getElementById('applepay-container').innerHTML =
-        '<button id="apple-pay-btn" style="-webkit-appearance:none;appearance:none;display:block;width:100%;background:#000;border:none;border-radius:50px;min-height:48px;cursor:pointer;background-image:-webkit-named-image(apple-pay-logo-white);background-repeat:no-repeat;background-position:center;background-size:auto 58%;"></button>';
+        '<apple-pay-button id="apple-pay-btn" buttonstyle="black" type="buy" locale="en-US"></apple-pay-button>';
 
       document.getElementById('apple-pay-btn').addEventListener('click', function() {
         if (!selectedPackage) { alert('Please select a package before proceeding to payment.'); return; }
@@ -1168,6 +1165,7 @@
             .catch(function(e) { console.error(e); session.abort(); });
         };
         session.onpaymentauthorized = function(event) {
+          // Step 1: Create the order
           fetch(NETLIFY_FN, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1175,12 +1173,27 @@
           })
           .then(function(r) { return r.json(); })
           .then(function(order) {
-            return applepay.confirmOrder({ orderId: order.id, token: event.payment.token, billingContact: event.payment.billingContact });
+            // Step 2: Send Apple Pay token to server to confirm & capture
+            return fetch(NETLIFY_FN, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                orderId: order.id,
+                token:   event.payment.token,
+                amount:  currentTotal.toFixed(2)
+              })
+            });
           })
-          .then(function() {
-            session.completePayment(ApplePaySession.STATUS_SUCCESS);
-            submitToJotform('', '');
-            showPaymentSuccess('');
+          .then(function(r) { return r.json(); })
+          .then(function(result) {
+            if (result.success) {
+              session.completePayment(ApplePaySession.STATUS_SUCCESS);
+              submitToJotform('', '');
+              showPaymentSuccess('');
+            } else {
+              console.error('Capture failed:', result);
+              session.completePayment(ApplePaySession.STATUS_FAILURE);
+            }
           })
           .catch(function(e) { console.error(e); session.completePayment(ApplePaySession.STATUS_FAILURE); });
         };
@@ -1252,14 +1265,11 @@
     }).catch(function(e) { console.error('Google Pay config error', e); });
   }
 
-  // Apple Pay initializes immediately — no dependency on Google Pay SDK
-  initApplePay();
-
-  // Google Pay needs its own SDK loaded first
+  // Load Google Pay SDK then init both wallet buttons
   (function() {
     var s = document.createElement('script');
     s.src = 'https://pay.google.com/gp/p/js/pay.js';
-    s.onload = function() { initGooglePay(); };
+    s.onload = function() { initApplePay(); initGooglePay(); };
     document.head.appendChild(s);
   })();
 
