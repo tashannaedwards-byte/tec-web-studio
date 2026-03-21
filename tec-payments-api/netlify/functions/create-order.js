@@ -38,7 +38,21 @@ exports.handler = async function(event) {
     });
     const { access_token } = await authRes.json();
 
-    // ── Create order ──────────────────────────────────────
+    // ── Build the token — ensure version is always present ─
+    const formattedToken = {
+      version:   applePayToken.version   || 'EC_v1',
+      data:      applePayToken.data,
+      signature: applePayToken.signature,
+      header: {
+        ephemeralPublicKey: applePayToken.header.ephemeralPublicKey,
+        publicKeyHash:      applePayToken.header.publicKeyHash,
+        transactionId:      applePayToken.header.transactionId
+      }
+    };
+
+    console.log('Formatted token:', JSON.stringify(formattedToken));
+
+    // ── Create order with Apple Pay token ─────────────────
     const orderPayload = {
       intent: 'CAPTURE',
       purchase_units: [{
@@ -47,12 +61,10 @@ exports.handler = async function(event) {
       }],
       payment_source: {
         apple_pay: {
-          token: applePayToken
+          token: formattedToken
         }
       }
     };
-
-    console.log('Creating order with payload:', JSON.stringify(orderPayload));
 
     const orderRes = await fetch(`${PAYPAL_API}/v2/checkout/orders`, {
       method: 'POST',
