@@ -609,7 +609,6 @@
     btn.textContent = 'Processing...';
     document.getElementById('payment-message').textContent = '';
 
-    // Build return URL with payment status params
     var returnUrl = window.location.origin + window.location.pathname + '?payment=complete';
 
     stripe.confirmPayment({
@@ -617,7 +616,8 @@
       clientSecret: clientSecret,
       confirmParams: {
         return_url: returnUrl
-      }
+      },
+      redirect: 'always'
     }).then(function(result) {
       btn.disabled = false;
       btn.textContent = 'Pay Now';
