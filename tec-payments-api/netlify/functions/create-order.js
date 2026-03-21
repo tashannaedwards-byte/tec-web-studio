@@ -1,8 +1,6 @@
 // netlify/functions/create-order.js
-// Deploys to Netlify as a serverless function.
-// This creates a PayPal order for Apple Pay / Google Pay to confirm.
-
 exports.handler = async function(event) {
+
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -16,7 +14,6 @@ exports.handler = async function(event) {
     };
   }
 
-  // Only allow POST requests
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
@@ -26,9 +23,11 @@ exports.handler = async function(event) {
   const PAYPAL_API           = 'https://api-m.paypal.com';
 
   try {
-    const { amount, description } = JSON.parse(event.body);
+    const body = JSON.parse(event.body);
+    const amount      = body.amount;
+    const description = body.description || 'TEC Web Studio Services';
 
-    // ── Step 1: Get an access token from PayPal ──────────────
+    // ── Step 1: Get access token ─────────────────────────────
     const authRes = await fetch(`${PAYPAL_API}/v1/oauth2/token`, {
       method: 'POST',
       headers: {
@@ -38,30 +37,55 @@ exports.handler = async function(event) {
       body: 'grant_type=client_credentials'
     });
 
-    const { access_token } = await authRes.json();
+    const authData = await authRes.json();
+    const access_token = authData.access_token;
 
-    // ── Step 2: Create the order ─────────────────────────────
+    if (!access_token) {
+      console.error('PayPal auth failed:', authData);
+      return {
+        statusCode: 500,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'PayPal authentication failed', details: authData })
+      };
+    }
+
+    // ── Step 2: Create order with Apple Pay payment source ───
+    const orderPayload = {
+      intent: 'CAPTURE',
+      payment_source: {
+        apple_pay: {}
+      },
+      purchase_units: [{
+        amount: {
+          currency_code: 'USD',
+          value: amount
+        },
+        description: description
+      }]
+    };
+
     const orderRes = await fetch(`${PAYPAL_API}/v2/checkout/orders`, {
       method: 'POST',
       headers: {
-        'Content-Type':  'application/json',
-        'Authorization': `Bearer ${access_token}`
+        'Content-Type':        'application/json',
+        'Authorization':       `Bearer ${access_token}`,
+        'PayPal-Request-Id':   Date.now().toString(),
+        'Prefer':              'return=representation'
       },
-      body: JSON.stringify({
-        intent: 'CAPTURE',
-        purchase_units: [{
-          amount: {
-            currency_code: 'USD',
-            value: amount
-          },
-          description: description || 'TEC Web Studio Services'
-        }]
-      })
+      body: JSON.stringify(orderPayload)
     });
 
     const order = await orderRes.json();
+    console.log('PayPal order response:', JSON.stringify(order));
 
-    // ── Step 3: Return the order ID to the browser ───────────
+    if (!order.id) {
+      return {
+        statusCode: 500,
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ error: 'Order creation failed', details: order })
+      };
+    }
+
     return {
       statusCode: 200,
       headers: {
@@ -72,11 +96,11 @@ exports.handler = async function(event) {
     };
 
   } catch (err) {
-    console.error('PayPal order creation error:', err);
+    console.error('Error:', err);
     return {
       statusCode: 500,
       headers: { 'Access-Control-Allow-Origin': '*' },
-      body: JSON.stringify({ error: 'Failed to create order' })
+      body: JSON.stringify({ error: err.message })
     };
   }
 };
