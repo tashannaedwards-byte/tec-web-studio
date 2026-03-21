@@ -572,11 +572,11 @@
       expressElement.mount('#express-checkout-element');
 
       expressElement.on('confirm', function(event) {
+        var returnUrl = window.location.origin + window.location.pathname + '?payment=complete';
         stripe.confirmPayment({
           elements: elements,
           clientSecret: clientSecret,
-          confirmParams: { return_url: window.location.href },
-          redirect: 'if_required'
+          confirmParams: { return_url: returnUrl }
         }).then(function(result) {
           if (result.error) {
             document.getElementById('payment-message').textContent = result.error.message;
