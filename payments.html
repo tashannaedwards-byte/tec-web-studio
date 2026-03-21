@@ -598,11 +598,15 @@
     btn.textContent = 'Processing...';
     document.getElementById('payment-message').textContent = '';
 
+    // Build return URL with payment status params
+    var returnUrl = window.location.origin + window.location.pathname + '?payment=complete';
+
     stripe.confirmPayment({
       elements: elements,
       clientSecret: clientSecret,
-      confirmParams: { return_url: window.location.href },
-      redirect: 'if_required'
+      confirmParams: {
+        return_url: returnUrl
+      }
     }).then(function(result) {
       btn.disabled = false;
       btn.textContent = 'Pay Now';
@@ -613,6 +617,25 @@
         showSuccess('');
       }
     });
+  }
+
+  // Handle return from redirect-based payments (Cash App, bank redirects etc)
+  function checkPaymentReturn() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'complete') {
+      var paymentIntentId = params.get('payment_intent');
+      var clientSecretParam = params.get('payment_intent_client_secret');
+      if (clientSecretParam) {
+        stripe.retrievePaymentIntent(clientSecretParam).then(function(result) {
+          if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+            submitToJotform('', '');
+            showSuccess('');
+          } else {
+            document.getElementById('payment-message').textContent = 'Payment was not completed. Please try again.';
+          }
+        });
+      }
+    }
   }
 
   function initFromURL() {
@@ -634,6 +657,7 @@
 
   updateSummary();
   initFromURL();
+  checkPaymentReturn();
 </script>
 </body>
 </html>
