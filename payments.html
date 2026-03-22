@@ -663,27 +663,16 @@
       addOns:          addonsList.length ? addonsList.join(', ') : 'None'
     };
 
-    // Submit via hidden form to bypass CORS
-    var form = document.createElement('form');
-    form.method = 'POST';
-    form.action = APPS_SCRIPT_URL;
-    form.target = 'pay_iframe';
-    form.style.display = 'none';
+    // Send as form-encoded POST via fetch
+    var formData = new FormData();
     Object.keys(payload).forEach(function(key) {
-      var inp = document.createElement('input');
-      inp.type = 'hidden'; inp.name = key; inp.value = payload[key];
-      form.appendChild(inp);
+      formData.append(key, payload[key]);
     });
-    var iframe = document.getElementById('pay_iframe');
-    if (!iframe) {
-      iframe = document.createElement('iframe');
-      iframe.name = 'pay_iframe'; iframe.id = 'pay_iframe';
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
-    }
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: formData
+    }).catch(function(err) { console.log('Fetch error:', err); });
   }
 
   function showSuccess(name) {
