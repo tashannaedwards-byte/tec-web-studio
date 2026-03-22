@@ -370,15 +370,9 @@
 
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-  var stripe, elements, paymentElement, expressElement;
+  var stripe = Stripe('pk_live_51TDUtoFUlbNwdF4YaCjZiGbEobOmm5XKIUzt6T1zQeMgMdZpzKHLjqaRf92xhJYWz05kwDUAoktYWDxGVxx32Z7n00IGkV75LZ');
+  var elements, paymentElement, expressElement;
   var clientSecret = null;
-
-  // Initialize Stripe after page loads
-  window.addEventListener('load', function() {
-    if (typeof Stripe !== 'undefined') {
-      stripe = Stripe('pk_live_51TDUtoFUlbNwdF4YaCjZiGbEobOmm5XKIUzt6T1zQeMgMdZpzKHLjqaRf92xhJYWz05kwDUAoktYWDxGVxx32Z7n00IGkV75LZ');
-    }
-  });
 
   var selectedPackage = null;
   var glowupSize = 'sm';
@@ -584,10 +578,6 @@
   }
 
   function _initStripe() {
-    if (!stripe) {
-      setTimeout(_initStripe, 200);
-      return;
-    }
     var amountCents = Math.round(currentTotal * 100);
     fetch(NETLIFY_FN, {
       method: 'POST',
