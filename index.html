@@ -1144,12 +1144,34 @@ nav {
   border-radius: 16px;
   overflow: hidden;
   box-shadow: var(--shadow-md);
+  min-width: 0;
+  width: 100%;
 }
 
-.form-embed-wrap iframe {
-  display: block;
+#inquiry-form-container {
+  padding: 28px;
   width: 100%;
-  border: none;
+  box-sizing: border-box;
+}
+
+#inquiry-form-container .ifs-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+#inquiry-form-container .ifs-input,
+#inquiry-form-container .ifs-textarea,
+#inquiry-form-container .ifs-select {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  #inquiry-form-container { padding: 20px; }
+  #inquiry-form-container .ifs-row { grid-template-columns: 1fr; }
+  #inquiry-form-container .ifs-opts { grid-template-columns: 1fr; }
 }
 
 /* ── PRICING TEASER (shown before inquiry) ───────── */
@@ -1839,6 +1861,13 @@ footer {
             .ifs-opts { grid-template-columns: 1fr; }
           }
         </style>
+
+        <!-- Form header -->
+        <div style="background:#6aabb0;padding:24px 28px;border-radius:0;">
+          <div style="display:inline-block;background:#f5c842;border-radius:20px;padding:4px 12px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#111;margin-bottom:10px;">TEC Web Studio</div>
+          <h3 style="font-family:'DM Serif Display',serif;font-size:22px;color:#fff;margin:0 0 4px;">Service Inquiry Form</h3>
+          <p style="font-size:12px;color:rgba(255,255,255,0.82);margin:0;">Please provide your details and specific needs for your website project.</p>
+        </div>
 
         <!-- Success state -->
         <div class="ifs-success" id="ifsSuccess">
