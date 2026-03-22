@@ -2072,13 +2072,12 @@ footer {
           var feats = showSubQ ? [...document.querySelectorAll('input[name="ifsFeat"]:checked')].map(function(c){return c.value;}) : [];
           var payload = {
             formType: 'Service Inquiry',
-            existingSite: existing ? existing.value : 'No',
             firstName: document.getElementById('ifsFirst').value.trim(),
             lastName: document.getElementById('ifsLast').value.trim(),
             email: document.getElementById('ifsEmail').value.trim(),
             company: document.getElementById('ifsCompany').value.trim(),
-            existingSite: existing ? existing.value : '',
-            serviceType: hasExisting ? 'Existing Site' : (svc ? svc.value : ''),
+            existingSite: existing ? existing.value : 'No',
+            serviceType: hasExisting ? '' : (svc ? svc.value : ''),
             description: document.getElementById('ifsDesc').value.trim(),
             timeline: document.getElementById('ifsTl').value,
             contentWritten: showSubQ ? (document.querySelector('input[name="ifsContent"]:checked') ? document.querySelector('input[name="ifsContent"]:checked').value : '') : 'N/A',
