@@ -584,6 +584,10 @@
   }
 
   function _initStripe() {
+    if (!stripe) {
+      setTimeout(_initStripe, 200);
+      return;
+    }
     var amountCents = Math.round(currentTotal * 100);
     fetch(NETLIFY_FN, {
       method: 'POST',
