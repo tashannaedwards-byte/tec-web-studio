@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TEC Web Studio – Payment</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold: #F5C842; --teal: #6AABB0; --teal-dark: #3d7a80; --teal-light: #e8f4f5;
+      --cream: #FFFDF5; --dark: #1a2e2e; --text: #2d3a3a; --muted: #6b8080;
+      --border: #d0e4e6; --white: #ffffff;
+      --shadow: 0 4px 24px rgba(106,171,176,0.13); --shadow-hover: 0 8px 36px rgba(106,171,176,0.22);
+    }
+    body { font-family: 'DM Sans', sans-serif; background-color: #f0f7f8; color: var(--text); min-height: 100vh; }
+    .hero { background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%); padding: 52px 24px 44px; text-align: center; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; top: -60px; right: -60px; width: 280px; height: 280px; background: rgba(245,200,66,0.12); border-radius: 50%; }
+    .hero::after { content: ''; position: absolute; bottom: -80px; left: -40px; width: 220px; height: 220px; background: rgba(255,255,255,0.07); border-radius: 50%; }
+    .hero-badge { display: inline-block; background: var(--gold); color: var(--dark); font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; padding: 6px 18px; border-radius: 50px; margin-bottom: 18px; }
+    .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(28px, 5vw, 42px); color: var(--white); line-height: 1.2; margin-bottom: 12px; }
+    .hero h1 span { color: var(--gold); }
+    .hero p { font-size: 15px; color: rgba(255,255,255,0.82); max-width: 480px; margin: 0 auto; line-height: 1.6; }
+    .container { max-width: 820px; margin: 0 auto; padding: 40px 20px 60px; }
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--teal-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .packages-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 32px; }
+    @media (max-width: 560px) { .packages-grid { grid-template-columns: 1fr; } }
+    .pkg-card { background: var(--white); border: 2px solid var(--border); border-radius: 14px; padding: 20px; cursor: pointer; transition: all 0.2s ease; position: relative; user-select: none; }
+    .pkg-card:hover { border-color: var(--teal); box-shadow: var(--shadow); transform: translateY(-1px); }
+    .pkg-card.selected { border-color: var(--teal); background: var(--teal-light); box-shadow: var(--shadow-hover); }
+    .pkg-card.selected::after { content: '✓'; position: absolute; top: 14px; right: 14px; width: 24px; height: 24px; background: var(--teal); color: white; border-radius: 50%; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; line-height: 24px; text-align: center; }
+    .pkg-name { font-family: 'DM Serif Display', serif; font-size: 17px; color: var(--dark); margin-bottom: 4px; }
+    .pkg-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+    .pkg-features { list-style: none; margin-bottom: 14px; }
+    .pkg-features li { font-size: 12px; color: var(--text); padding: 2px 0; padding-left: 16px; position: relative; }
+    .pkg-features li::before { content: '✦'; position: absolute; left: 0; color: var(--gold); font-size: 9px; top: 3px; }
+    .pkg-price { font-size: 22px; font-weight: 700; color: var(--teal-dark); }
+    .pkg-price span { font-size: 13px; font-weight: 500; color: var(--muted); }
+    .glowup-options { display: flex; gap: 8px; margin-top: 12px; }
+    .glowup-opt { flex: 1; border: 2px solid var(--border); border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: all 0.18s; text-align: center; background: var(--white); }
+    .glowup-opt:hover { border-color: var(--teal); }
+    .glowup-opt.active { border-color: var(--teal); background: var(--teal-light); }
+    .glowup-opt .go-pages { font-size: 11px; color: var(--muted); }
+    .glowup-opt .go-price { font-size: 16px; font-weight: 700; color: var(--teal-dark); }
+    .addons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px; }
+    @media (max-width: 560px) { .addons-grid { grid-template-columns: 1fr; } }
+    .addon-card { background: var(--white); border: 2px solid var(--border); border-radius: 12px; padding: 16px 18px; cursor: pointer; transition: all 0.18s; display: flex; align-items: flex-start; gap: 12px; user-select: none; }
+    .addon-card:hover { border-color: var(--gold); box-shadow: var(--shadow); }
+    .addon-card.selected { border-color: var(--gold); background: #fffbea; }
+    .addon-checkbox { width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 6px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.18s; background: var(--white); }
+    .addon-card.selected .addon-checkbox { background: var(--gold); border-color: var(--gold); }
+    .addon-card.selected .addon-checkbox::after { content: '✓'; display: block; font-size: 12px; font-weight: 700; color: var(--dark); }
+    .addon-info { flex: 1; }
+    .addon-name { font-size: 13px; font-weight: 600; color: var(--dark); margin-bottom: 2px; }
+    .addon-detail { font-size: 11px; color: var(--muted); line-height: 1.4; }
+    .addon-price { font-size: 15px; font-weight: 700; color: #b08a00; white-space: nowrap; }
+    .maintenance-section { background: var(--white); border: 2px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 32px; }
+    .maintenance-header { background: var(--teal-light); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+    .maintenance-header span { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--teal-dark); }
+    .maintenance-toggle { font-size: 12px; color: var(--teal-dark); cursor: pointer; font-weight: 600; text-decoration: underline; }
+    .maintenance-options { padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; }
+    .maint-opt { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.18s; user-select: none; }
+    .maint-opt:hover { border-color: var(--teal); }
+    .maint-opt.selected { border-color: var(--teal); background: var(--teal-light); }
+    .maint-radio { width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.18s; }
+    .maint-opt.selected .maint-radio { border-color: var(--teal); background: var(--teal); }
+    .maint-opt.selected .maint-radio::after { content: ''; width: 6px; height: 6px; background: white; border-radius: 50%; }
+    .maint-label { flex: 1; font-size: 13px; color: var(--dark); }
+    .maint-label small { display: block; font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .maint-price { font-size: 14px; font-weight: 700; color: var(--teal-dark); }
+    .hosting-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+    .hosting-card { background: var(--white); border: 2px solid var(--border); border-radius: 12px; padding: 16px 18px; cursor: pointer; transition: all 0.18s; display: flex; align-items: flex-start; gap: 14px; user-select: none; }
+    .hosting-card:hover { border-color: var(--teal); box-shadow: var(--shadow); }
+    .hosting-card.selected { border-color: var(--teal); background: var(--teal-light); }
+    .hosting-card-free { border-style: dashed; }
+    .hosting-card-free.selected { border-style: solid; }
+    .hosting-radio-wrap { padding-top: 2px; flex-shrink: 0; }
+    .hosting-radio { width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 50%; transition: all 0.18s; display: flex; align-items: center; justify-content: center; }
+    .hosting-card.selected .hosting-radio { border-color: var(--teal); background: var(--teal); }
+    .hosting-card.selected .hosting-radio::after { content: ''; width: 6px; height: 6px; background: white; border-radius: 50%; display: block; }
+    .hosting-info { flex: 1; }
+    .hosting-name { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 2px; display: flex; align-items: center; gap: 8px; }
+    .hosting-best { font-size: 11px; font-weight: 700; color: var(--teal); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 4px; }
+    .hosting-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .hosting-price { font-size: 13px; font-weight: 700; color: var(--teal-dark); white-space: nowrap; padding-top: 2px; }
+    .hosting-price span { font-size: 11px; font-weight: 500; color: var(--muted); }
+    .hosting-free-badge { background: var(--teal); color: white; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 20px; letter-spacing: 0.5px; text-transform: uppercase; }
+    .setup-opt { flex: 1; min-width: 180px; padding: 11px 16px; border: 2px solid var(--border); border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--dark); background: var(--white); cursor: pointer; transition: all 0.18s; text-align: center; user-select: none; }
+    .setup-opt:hover { border-color: var(--teal); background: var(--teal-light); }
+    .setup-opt.selected { border-color: var(--teal); background: var(--teal-light); color: var(--teal-dark); }
+    .summary-box { background: var(--white); border: 2px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 24px; box-shadow: var(--shadow); }
+    .summary-header { background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%); padding: 16px 24px; }
+    .summary-header h3 { font-family: 'DM Serif Display', serif; font-size: 18px; color: white; }
+    .summary-lines { padding: 20px 24px; }
+    .summary-line { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #f0f0f0; color: var(--text); }
+    .summary-line:last-child { border-bottom: none; }
+    .summary-line.empty-state { color: var(--muted); font-style: italic; justify-content: center; padding: 16px 0; }
+    .summary-total { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; background: #f8fcfc; border-top: 2px solid var(--border); }
+    .summary-total .label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--teal-dark); }
+    .summary-total .amount { font-family: 'DM Serif Display', serif; font-size: 30px; color: var(--dark); }
+    .payment-section { background: var(--white); border: 2px solid var(--border); border-radius: 16px; padding: 28px 24px; }
+    .payment-note { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+    .payment-note strong { color: var(--text); }
+    .disabled-notice { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #7a5c00; margin-bottom: 12px; }
+    #payment-element { margin-bottom: 20px; }
+    #express-checkout-element { margin-bottom: 16px; }
+    .pay-btn { width: 100%; background: var(--teal); color: white; border: none; border-radius: 50px; padding: 15px 24px; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .pay-btn:hover { background: var(--teal-dark); }
+    .pay-btn:disabled { background: #a0c8cc; cursor: not-allowed; }
+    #payment-message { color: #c0392b; font-size: 13px; margin-top: 12px; text-align: center; }
+    .or-divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; }
+    .or-divider div { flex: 1; height: 1px; background: var(--border); }
+    .or-divider span { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+    footer { text-align: center; padding: 24px; font-size: 12px; color: var(--muted); }
+    .pkg-snackbar {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1a3d3d;
+      color: #f5c842;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 14px 28px;
+      border-radius: 50px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      z-index: 999;
+      white-space: nowrap;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .pkg-snackbar.show {
+      display: block;
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    footer strong { color: var(--teal-dark); }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">TEC Web Studio</div>
+  <h1>Ready to <span>Level Up</span><br>Your Website?</h1>
+  <p>Select your package and any add-ons below. Complete your purchase securely via Stripe.</p>
+</div>
+
+<div class="container">
+
+  <div id="url-welcome-banner" style="display:none;background:linear-gradient(135deg,#fffbea,#fff8d6);border:2px solid #F5C842;border-radius:14px;padding:18px 24px;margin-bottom:28px;align-items:center;gap:14px;">
+    <span style="font-size:28px;">👋</span>
+    <div>
+      <div style="font-family:'DM Serif Display',serif;font-size:17px;color:#1a2e2e;margin-bottom:3px;">We've pre-selected your recommended package!</div>
+      <div style="font-size:13px;color:#7a6000;line-height:1.5;">Review your selection below, add any extras you'd like, then proceed to secure checkout.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Step 1 — Choose Your Package</div>
+  <div class="packages-grid">
+    <div class="pkg-card" id="pkg-glowup" onclick="selectPackage('glowup')">
+      <div class="pkg-name">✦ The Glow-Up</div>
+      <div class="pkg-desc">Best for small updates to your existing website</div>
+      <ul class="pkg-features">
+        <li>Minor edits to text, images &amp; formatting</li>
+        <li>Fast turnaround, targeted updates</li>
+      </ul>
+      <div class="glowup-options">
+        <div class="glowup-opt active" id="glowup-sm" onclick="selectGlowup(event,'sm')">
+          <div class="go-pages">1–4 pages</div>
+          <div class="go-price">$0.50</div>
+        </div>
+        <div class="glowup-opt" id="glowup-lg" onclick="selectGlowup(event,'lg')">
+          <div class="go-pages">5–8 pages</div>
+          <div class="go-price">$0.50</div>
+        </div>
+      </div>
+    </div>
+    <div class="pkg-card" id="pkg-quickfixes" onclick="selectPackage('quickfixes')">
+      <div class="pkg-name">🌱✨ Site Refreshers</div>
+      <div class="pkg-desc">Ideal for refreshing and improving your current website</div>
+      <ul class="pkg-features">
+        <li>Fix layout issues &amp; minor bugs</li>
+        <li>Enhance UI/UX and branding</li>
+        <li>Refresh existing design</li>
+      </ul>
+      <div class="pkg-price">$299</div>
+    </div>
+    <div class="pkg-card" id="pkg-doneforyou" onclick="selectPackage('doneforyou')">
+      <div class="pkg-name">Done-for-You</div>
+      <div class="pkg-desc">Starting from scratch — you choose what's included</div>
+      <ul class="pkg-features">
+        <li>Full website design &amp; build</li>
+        <li>First 4 pages, links &amp; animations</li>
+        <li>1 month maintenance included</li>
+      </ul>
+      <div class="glowup-options">
+        <div class="glowup-opt active" id="dfy-nocontent" onclick="selectDFY(event,'nocontent')">
+          <div class="go-pages">I have content</div>
+          <div class="go-price">$400</div>
+        </div>
+        <div class="glowup-opt" id="dfy-content" onclick="selectDFY(event,'content')">
+          <div class="go-pages">Write my content</div>
+          <div class="go-price">$500</div>
+        </div>
+      </div>
+    </div>
+    <div class="pkg-card" id="pkg-allinclusive" onclick="selectPackage('allinclusive')">
+      <div class="pkg-name">🚀 All-Inclusive</div>
+      <div class="pkg-desc">Complete done-for-you experience</div>
+      <ul class="pkg-features">
+        <li>Full custom design + copywriting</li>
+        <li>UX, SEO &amp; brand alignment</li>
+        <li>Name &amp; logo creation</li>
+        <li>2 months maintenance included</li>
+      </ul>
+      <div class="pkg-price">$699</div>
+    </div>
+  </div>
+
+  <div class="section-label">Step 2 — Add-Ons (Optional)</div>
+
+  <!-- Expedited Delivery -->
+  <div class="maintenance-section" style="margin-bottom:16px;">
+    <div class="maintenance-header">
+      <span>⚡ Expedited Delivery</span>
+    </div>
+    <div class="maintenance-options">
+      <div class="maint-opt" id="addon-expedited" onclick="toggleAddon('expedited',75)" style="cursor:pointer;">
+        <div class="maint-radio"></div>
+        <div class="maint-label">
+          <span>Rush my project to the top of the queue</span>
+          <small>Your project gets prioritized for faster delivery</small>
+        </div>
+        <div class="maint-price">+$75</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Maintenance Plans + Last-Minute Fixes combined -->
+  <div class="maintenance-section">
+    <div class="maintenance-header">
+      <span>📅 Maintenance Plans (Optional)</span>
+      <span class="maintenance-toggle" onclick="clearMaintenance()">Clear selection</span>
+    </div>
+    <div class="maintenance-options">
+      <div class="maint-opt" id="maint-monthly" onclick="selectMaintenance('monthly',50)">
+        <div class="maint-radio"></div>
+        <div class="maint-label">
+          <span style="display:flex;align-items:center;gap:8px;">Monthly Maintenance <span style="background:#e8f4f5;color:#3d7a80;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:20px;">One-Time</span></span>
+          <small>Pay per update as needed — no commitment</small>
+        </div>
+        <div class="maint-price">$50</div>
+      </div>
+      <div class="maint-opt" id="maint-active" onclick="selectMaintenance('active',150)" style="border-color:#F5C842;">
+        <div class="maint-radio"></div>
+        <div class="maint-label">
+          <span style="display:flex;align-items:center;gap:8px;">Active Site Maintenance <span style="background:#fff8e1;color:#b08000;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:20px;">🔄 Recurring</span></span>
+          <small>Auto-billed monthly · Cancel anytime · Unlimited updates</small>
+        </div>
+        <div class="maint-price" style="color:#b08000;">$150<span style="font-size:11px;font-weight:500;color:#888;">/mo</span></div>
+      </div>
+      <div id="subscription-notice" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:10px;padding:14px 16px;font-size:13px;color:#7a5c00;line-height:1.6;">
+        ⚠️ <strong>Heads up:</strong> The Active Site Maintenance plan is a <strong>recurring monthly subscription of $150</strong>. Your card will be charged automatically each month until you cancel.
+      </div>
+
+      <!-- Dashed divider -->
+      <hr style="border:none;border-top:1.5px dashed #d0e4e6;margin:8px 0 12px;"/>
+
+      <!-- Last-Minute Fixes sub-section -->
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#557070;margin-bottom:4px;">🛠️ Last-Minute Fixes</div>
+      <div style="font-size:12px;color:#557070;margin-bottom:10px;line-height:1.5;">When something needs to be handled fast, choose your turnaround. Perfect for text updates, price changes, image swaps, link fixes, and more.</div>
+
+      <div class="maint-opt" id="addon-maint3" onclick="toggleAddon('maint3',25)" style="cursor:pointer;">
+        <div class="maint-radio"></div>
+        <div class="maint-label">
+          <span>3-Day Turnaround</span>
+          <small>One-time updates delivered in 3 days</small>
+        </div>
+        <div class="maint-price">+$25</div>
+      </div>
+      <div class="maint-opt" id="addon-maint2" onclick="toggleAddon('maint2',35)" style="cursor:pointer;">
+        <div class="maint-radio"></div>
+        <div class="maint-label">
+          <span>2-Day Turnaround</span>
+          <small>One-time updates delivered in 2 days</small>
+        </div>
+        <div class="maint-price">+$35</div>
+      </div>
+      <div class="maint-opt" id="addon-maint24" onclick="toggleAddon('maint24',50)" style="cursor:pointer;">
+        <div class="maint-radio"></div>
+        <div class="maint-label">
+          <span>24-Hour Turnaround</span>
+          <small>One-time updates delivered in 24 hours</small>
+        </div>
+        <div class="maint-price">+$50</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Step 3 — Choose Your Hosting Platform</div>
+  <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:12px;padding:16px 20px;margin-bottom:20px;font-size:13px;color:#5a4200;line-height:1.7;">
+    <strong>Your website has two parts:</strong> the <strong>design</strong> (what we build) and the <strong>hosting</strong> (where it lives online). Hosting is a separate cost paid directly to the platform. <strong>You'll own your account completely.</strong>
+  </div>
+  <div class="hosting-grid" id="hosting-grid">
+    <div class="hosting-card" id="hosting-wix" onclick="selectHosting('wix')">
+      <div class="hosting-radio-wrap"><div class="hosting-radio"></div></div>
+      <div class="hosting-info">
+        <div class="hosting-name">Wix</div>
+        <div class="hosting-best">Best for: Small businesses, service sites, portfolios</div>
+        <div class="hosting-desc">Drag-and-drop friendly — easy to manage yourself after launch.</div>
+      </div>
+      <div class="hosting-price">~$17<span>/mo</span></div>
+    </div>
+    <div class="hosting-card" id="hosting-squarespace" onclick="selectHosting('squarespace')">
+      <div class="hosting-radio-wrap"><div class="hosting-radio"></div></div>
+      <div class="hosting-info">
+        <div class="hosting-name">Squarespace</div>
+        <div class="hosting-best">Best for: Creatives, photographers, salons</div>
+        <div class="hosting-desc">Known for beautiful, polished designs.</div>
+      </div>
+      <div class="hosting-price">~$16<span>/mo</span></div>
+    </div>
+    <div class="hosting-card" id="hosting-wordpress" onclick="selectHosting('wordpress')">
+      <div class="hosting-radio-wrap"><div class="hosting-radio"></div></div>
+      <div class="hosting-info">
+        <div class="hosting-name">WordPress</div>
+        <div class="hosting-best">Best for: Blogs, growing businesses</div>
+        <div class="hosting-desc">Most flexible option. Ideal if you plan to grow over time.</div>
+      </div>
+      <div class="hosting-price">~$5–15<span>/mo</span></div>
+    </div>
+    <div class="hosting-card" id="hosting-shopify" onclick="selectHosting('shopify')">
+      <div class="hosting-radio-wrap"><div class="hosting-radio"></div></div>
+      <div class="hosting-info">
+        <div class="hosting-name">Shopify</div>
+        <div class="hosting-best">Best for: Online stores, product-based businesses</div>
+        <div class="hosting-desc">The go-to platform for selling products online.</div>
+      </div>
+      <div class="hosting-price">~$29<span>/mo</span></div>
+    </div>
+    <div class="hosting-card hosting-card-free" id="hosting-github" onclick="selectHosting('github')">
+      <div class="hosting-radio-wrap"><div class="hosting-radio"></div></div>
+      <div class="hosting-info">
+        <div class="hosting-name">GitHub Pages <span class="hosting-free-badge">FREE</span></div>
+        <div class="hosting-best">Best for: Simple, static sites</div>
+        <div class="hosting-desc">100% free — best if you're happy to have me handle all future updates.</div>
+      </div>
+      <div class="hosting-price" style="color:#3d7a80;">Free</div>
+    </div>
+    <div class="hosting-card" id="hosting-webflow" onclick="selectHosting('webflow')">
+      <div class="hosting-radio-wrap"><div class="hosting-radio"></div></div>
+      <div class="hosting-info">
+        <div class="hosting-name">Webflow</div>
+        <div class="hosting-best">Best for: Design-forward businesses</div>
+        <div class="hosting-desc">Powerful visual builder for highly custom, polished sites.</div>
+      </div>
+      <div class="hosting-price">~$14<span>/mo</span></div>
+    </div>
+  </div>
+  <p style="font-size:11px;color:#9aacad;margin-bottom:16px;line-height:1.6;">* You will own your hosting account — we will only be added as your developer to build your site.</p>
+
+  <div id="setup-assist-wrap" style="display:none;margin-bottom:32px;">
+    <div style="background:#f0f9f9;border:2px solid #6AABB0;border-radius:12px;padding:18px 20px;">
+      <p style="margin:0 0 4px;font-size:14px;font-weight:700;color:#1a2e2e;">Need help getting your hosting account set up?</p>
+      <p style="margin:0 0 14px;font-size:13px;color:#557070;line-height:1.6;">No worries — we can walk you through creating your account and adding us as your developer. It's quick and totally free.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <div class="setup-opt" id="setup-yes" onclick="selectSetup('yes')">Yes, please help me get set up</div>
+        <div class="setup-opt" id="setup-no" onclick="selectSetup('no')">No, I can set it up on my own</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="order-summary-anchor"></div>
+  <div class="section-label">Step 4 — Your Details &amp; Order Review</div>
+  <div class="summary-box">
+    <div class="summary-header"><h3>Order Summary</h3></div>
+    <!-- Name & Email capture inside summary -->
+    <div style="padding:16px 24px;border-bottom:1px solid #f0f0f0;background:#f8fcfc;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#2d3a3a;margin-bottom:5px;">Your Name</label>
+          <input type="text" id="customer-name" placeholder="Jane Smith"
+            style="width:100%;padding:9px 12px;border:1.5px solid #d0e4e6;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;box-sizing:border-box;"
+            onfocus="this.style.borderColor='#6AABB0'" onblur="this.style.borderColor='#d0e4e6'"/>
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#2d3a3a;margin-bottom:5px;">Your Email</label>
+          <input type="email" id="customer-email" placeholder="you@example.com"
+            style="width:100%;padding:9px 12px;border:1.5px solid #d0e4e6;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;box-sizing:border-box;"
+            onfocus="this.style.borderColor='#6AABB0'" onblur="this.style.borderColor='#d0e4e6'"/>
+        </div>
+      </div>
+    </div>
+    <div class="summary-lines" id="summary-lines">
+      <div class="summary-line empty-state">No package selected yet — choose above to get started!</div>
+    </div>
+    <div class="summary-total">
+      <div class="label">Total</div>
+      <div class="amount" id="total-display">$0</div>
+    </div>
+  </div>
+
+  <!-- Cash App Section (outside Stripe, no interference) -->
+  <div id="cashapp-section" style="display:none;margin-bottom:16px;">
+    <button onclick="handleCashAppSubmit()" style="width:100%;background:#00D632;border:none;border-radius:8px;padding:0 24px;height:48px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm1.193 16.91c-.23.86-.96 1.45-1.84 1.55v.61a.56.56 0 01-.56.56h-.7a.56.56 0 01-.56-.56v-.64a4.4 4.4 0 01-2.1-.84.56.56 0 01-.06-.8l.48-.54a.56.56 0 01.77-.06c.47.37 1.01.58 1.6.58.7 0 1.16-.3 1.16-.82 0-.44-.27-.7-1.25-1.01-1.37-.42-2.3-1.01-2.3-2.3 0-.97.67-1.72 1.72-1.98v-.63a.56.56 0 01.56-.56h.7a.56.56 0 01.56.56v.66c.56.1 1.06.33 1.48.67a.56.56 0 01.07.8l-.45.52a.56.56 0 01-.77.08 1.9 1.9 0 00-1.2-.41c-.64 0-1.03.27-1.03.74 0 .42.3.65 1.35 1 1.4.43 2.22 1.06 2.22 2.33z"/></svg>
+      Pay with Cash App
+    </button>
+  </div>
+
+  <!-- Recurring notice -->
+  <div id="recurring-notice" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:12px 16px;font-size:13px;color:#7a5c00;margin-bottom:16px;line-height:1.6;">
+    🔄 <strong>Recurring plan selected:</strong> After your initial payment via Stripe, we'll send a monthly invoice to your email. Cash App is not available for recurring plans.
+  </div>
+
+  <div class="payment-section">
+    <p class="payment-note"><strong>Secure checkout via Stripe.</strong> Apple Pay, Google Pay, Afterpay, Klarna, credit &amp; debit cards all accepted.</p>
+    <div class="disabled-notice" id="no-selection-notice">⚠️ Please select a package above before proceeding to payment.</div>
+    <div class="disabled-notice" id="no-hosting-notice" style="display:none;">⚠️ Please select a hosting platform in Step 3 before proceeding to payment.</div>
+    <div class="disabled-notice" id="no-setup-notice" style="display:none;">⚠️ Please answer the hosting setup question in Step 3 before proceeding to payment.</div>
+    <div id="express-checkout-element"></div>
+    <div class="or-divider" id="or-divider" style="display:none;">
+      <div></div><span>or pay with card</span><div></div>
+    </div>
+    <div id="payment-element"></div>
+    <button class="pay-btn" id="pay-btn" style="display:none;" onclick="handlePayment()">Pay Now</button>
+    <div id="payment-message"></div>
+  </div>
+
+</div>
+
+<!-- Pre-selected package snackbar -->
+<div class="pkg-snackbar" id="pkgSnackbar">✨ Your recommended package has been pre-selected for you!</div>
+
+<footer>&copy; 2026 <strong>TEC Web Studio</strong> · Secure payments powered by Stripe</footer>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  var stripe = Stripe('pk_live_51TDUtoFUlbNwdF4YaCjZiGbEobOmm5XKIUzt6T1zQeMgMdZpzKHLjqaRf92xhJYWz05kwDUAoktYWDxGVxx32Z7n00IGkV75LZ');
+  var NETLIFY_FN = 'https://dainty-rugelach-661911.netlify.app/.netlify/functions/create-order';
+  var elements, paymentElement, expressElement;
+  var clientSecret = null;
+
+  var selectedPackage = null;
+  var glowupSize = 'sm';
+  var addons = {};
+  var maintenancePlan = null;
+  var selectedHosting = null;
+  var needsSetupHelp = null;
+  var currentTotal = 0;
+
+  var dfyType = 'nocontent';
+  var packages = {
+    glowup:            { label: 'The Glow-Up (1–4 pages)',           price: 0.50 }, // TEMP TEST
+    glowup_lg:         { label: 'The Glow-Up (5–8 pages)',           price: 0.50 }, // TEMP TEST
+    quickfixes:        { label: 'Site Refreshers',                   price: 299 },
+    doneforyou:        { label: 'Done-for-You (I have content)',     price: 400 },
+    doneforyou_content:{ label: 'Done-for-You (Content included)',   price: 500 },
+    allinclusive:      { label: 'All-Inclusive',                     price: 699 },
+  };
+
+  var addonData = {
+    expedited: { label: 'Expedited Delivery',      price: 75 },
+    maint3:    { label: '3-Day Turnaround',         price: 25 },
+    maint2:    { label: '2-Day Turnaround',         price: 35 },
+    maint24:   { label: '24-Hour Turnaround',       price: 50 },
+  };
+
+  var maintenanceData = {
+    monthly: { label: 'Monthly Maintenance (One-Time)',              price: 50  },
+    active:  { label: 'Active Site Maintenance (Recurring $150/mo)', price: 150 },
+  };
+
+  function selectPackage(id) {
+    document.querySelectorAll('.pkg-card').forEach(function(c) { c.classList.remove('selected'); });
+    document.getElementById('pkg-' + id).classList.add('selected');
+    selectedPackage = id;
+    updateSummary();
+    initStripe();
+  }
+
+  function selectGlowup(e, size) {
+    e.stopPropagation();
+    glowupSize = size;
+    document.getElementById('glowup-sm').classList.toggle('active', size === 'sm');
+    document.getElementById('glowup-lg').classList.toggle('active', size === 'lg');
+    selectPackage('glowup');
+  }
+
+  function selectDFY(e, type) {
+    e.stopPropagation();
+    dfyType = type;
+    document.getElementById('dfy-nocontent').classList.toggle('active', type === 'nocontent');
+    document.getElementById('dfy-content').classList.toggle('active', type === 'content');
+    selectPackage('doneforyou');
+  }
+
+  function toggleAddon(id, price) {
+    var card = document.getElementById('addon-' + id);
+    if (addons[id]) {
+      delete addons[id];
+      card.classList.remove('selected');
+      card.querySelector('.maint-radio') && (card.querySelector('.maint-radio').style.borderColor = '');
+    } else {
+      // For last-minute fixes, only allow one at a time
+      if (id === 'maint3' || id === 'maint2' || id === 'maint24') {
+        ['maint3','maint2','maint24'].forEach(function(k) {
+          if (addons[k]) {
+            delete addons[k];
+            var c = document.getElementById('addon-' + k);
+            if (c) c.classList.remove('selected');
+          }
+        });
+      }
+      addons[id] = price;
+      card.classList.add('selected');
+    }
+    updateSummary();
+    initStripe();
+  }
+
+  function selectMaintenance(id, price) {
+    if (maintenancePlan === id) { clearMaintenance(); return; }
+    document.querySelectorAll('#maint-monthly, #maint-active').forEach(function(o) { o.classList.remove('selected'); });
+    document.getElementById('maint-' + id).classList.add('selected');
+    maintenancePlan = id;
+    var notice = document.getElementById('subscription-notice');
+    if (notice) notice.style.display = (id === 'active') ? 'block' : 'none';
+    updateSummary();
+    initStripe();
+  }
+
+  function clearMaintenance() {
+    document.querySelectorAll('#maint-monthly, #maint-active').forEach(function(o) { o.classList.remove('selected'); });
+    maintenancePlan = null;
+    var notice = document.getElementById('subscription-notice');
+    if (notice) notice.style.display = 'none';
+    updateSummary();
+    initStripe();
+  }
+
+  function selectHosting(id) {
+    document.querySelectorAll('.hosting-card').forEach(function(c) { c.classList.remove('selected'); });
+    document.getElementById('hosting-' + id).classList.add('selected');
+    selectedHosting = id;
+    document.getElementById('setup-assist-wrap').style.display = 'block';
+    updateSummary();
+    initStripe();
+  }
+
+  function selectSetup(choice) {
+    document.querySelectorAll('.setup-opt').forEach(function(o) { o.classList.remove('selected'); });
+    document.getElementById('setup-' + choice).classList.add('selected');
+    needsSetupHelp = choice;
+    updateSummary();
+    initStripe();
+  }
+
+  function showCashAppForm() {}
+
+  function handleCashAppSubmit() {
+    submitToJotform('Cash App Payment', 'via-cashapp');
+    window.open('https://cash.app/$TECWebs/' + currentTotal.toFixed(2), '_blank');
+    document.getElementById('cashapp-section').innerHTML =
+      '<div style="text-align:center;padding:16px;background:#f0faf0;border:2px solid #00D632;border-radius:10px;">' +
+      '<p style="font-size:14px;font-weight:700;color:#1a2e2e;margin-bottom:6px;">✅ Order details saved!</p>' +
+      '<p style="font-size:13px;color:#557070;line-height:1.6;">Cash App should be open. Complete your $' + currentTotal.toFixed(2) + ' payment and we\'ll be in touch to get started!</p>' +
+      '</div>';
+  }
+
+  function updateSummary() {
+    var lines = document.getElementById('summary-lines');
+    var totalDisplay = document.getElementById('total-display');
+    var noSelectionNotice = document.getElementById('no-selection-notice');
+    var total = 0;
+    var html = '';
+
+    if (selectedPackage) {
+      var key = selectedPackage === 'glowup' ? (glowupSize === 'lg' ? 'glowup_lg' : 'glowup') : selectedPackage === 'doneforyou' ? (dfyType === 'content' ? 'doneforyou_content' : 'doneforyou') : selectedPackage;
+      var pkg = packages[key];
+      total += pkg.price;
+      html += '<div class="summary-line"><span>' + pkg.label + '</span><span><strong>$' + pkg.price + '</strong></span></div>';
+    }
+
+    Object.keys(addons).forEach(function(id) {
+      var a = addonData[id];
+      total += a.price;
+      html += '<div class="summary-line"><span>' + a.label + '</span><span>+$' + a.price + '</span></div>';
+    });
+
+    if (maintenancePlan) {
+      var m = maintenanceData[maintenancePlan];
+      total += m.price;
+      var tag = maintenancePlan === 'active'
+        ? '<span style="font-size:10px;background:#fff8e1;color:#b08000;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:6px;">🔄 Recurring</span>'
+        : '<span style="font-size:10px;background:#e8f4f5;color:#3d7a80;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:6px;">One-Time</span>';
+      html += '<div class="summary-line"><span>' + m.label.split(' (')[0] + tag + '</span><span>+$' + m.price + (maintenancePlan === 'active' ? '/mo' : '') + '</span></div>';
+    }
+
+    var hostingLabels = { wix:'Hosting: Wix (~$17/mo)', squarespace:'Hosting: Squarespace (~$16/mo)', wordpress:'Hosting: WordPress (~$5–15/mo)', shopify:'Hosting: Shopify (~$29/mo)', github:'Hosting: GitHub Pages (Free)', webflow:'Hosting: Webflow (~$14/mo)' };
+    if (selectedHosting) html += '<div class="summary-line"><span>' + hostingLabels[selectedHosting] + '</span><span style="font-size:11px;color:#9aacad;">separate cost</span></div>';
+    if (needsSetupHelp === 'yes') html += '<div class="summary-line"><span>🛠️ Hosting setup assistance</span><span style="background:#e8f4f5;color:#3d7a80;font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;">Free ✔</span></div>';
+
+    lines.innerHTML = html || '<div class="summary-line empty-state">No package selected yet — choose above to get started!</div>';
+    currentTotal = total;
+    totalDisplay.textContent = '$' + total;
+    noSelectionNotice.style.display = selectedPackage ? 'none' : 'block';
+
+    var noHostingNotice = document.getElementById('no-hosting-notice');
+    var noSetupNotice = document.getElementById('no-setup-notice');
+    var cashappBtn = document.getElementById('cashapp-btn-wrap');
+    if (noHostingNotice) noHostingNotice.style.display = (selectedPackage && !selectedHosting) ? 'block' : 'none';
+    if (noSetupNotice) noSetupNotice.style.display = (selectedPackage && selectedHosting && !needsSetupHelp) ? 'block' : 'none';
+    var cashappSection = document.getElementById('cashapp-section');
+    var recurringNotice = document.getElementById('recurring-notice');
+    var isRecurring = maintenancePlan === 'active';
+    var allSelected = selectedPackage && selectedHosting && needsSetupHelp;
+    if (cashappSection) cashappSection.style.display = (allSelected && !isRecurring) ? 'block' : 'none';
+    if (recurringNotice) recurringNotice.style.display = (allSelected && isRecurring) ? 'block' : 'none';
+    var amtDisplay = document.getElementById('cashapp-amount-display');
+    if (amtDisplay) amtDisplay.textContent = total.toFixed(2);
+  }
+
+  function buildDescription() {
+    var parts = [];
+    if (selectedPackage) {
+      var key = selectedPackage === 'glowup' ? (glowupSize === 'lg' ? 'glowup_lg' : 'glowup') : selectedPackage === 'doneforyou' ? (dfyType === 'content' ? 'doneforyou_content' : 'doneforyou') : selectedPackage;
+      parts.push(packages[key].label);
+    }
+    Object.keys(addons).forEach(function(id) { parts.push(addonData[id].label); });
+    if (maintenancePlan) parts.push(maintenanceData[maintenancePlan].label);
+    if (selectedHosting) parts.push('Hosting: ' + selectedHosting);
+    if (needsSetupHelp === 'yes') parts.push('Needs hosting setup help');
+    return parts.join(' + ') || 'TEC Web Studio Services';
+  }
+
+  function submitToJotform(name, email) {
+    var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyKSIlD942kVPHMWrg7l0FkJL5EhIcuXJLTrecdx6WJSg5woeglv1bSE0lK5_hVKZAB/exec';
+    // Use captured name/email from form fields if not passed in
+    var capturedName = document.getElementById('customer-name') ? document.getElementById('customer-name').value.trim() : '';
+    var capturedEmail = document.getElementById('customer-email') ? document.getElementById('customer-email').value.trim() : '';
+    name = name || capturedName || 'Not provided';
+    email = email || capturedEmail || 'Not provided';
+
+    var key = selectedPackage === 'glowup' ? (glowupSize === 'lg' ? 'glowup_lg' : 'glowup') : selectedPackage === 'doneforyou' ? (dfyType === 'content' ? 'doneforyou_content' : 'doneforyou') : selectedPackage;
+    var pkgLabel = selectedPackage ? packages[key].label : 'Not selected';
+    var hostingMap = { wix:'Wix', squarespace:'Squarespace', wordpress:'WordPress', shopify:'Shopify', github:'GitHub Pages (Free)', webflow:'Webflow' };
+
+    var addonsList = Object.keys(addons).map(function(id) { return addonData[id].label; });
+    if (maintenancePlan) addonsList.push(maintenanceData[maintenancePlan].label.split(' (')[0]);
+
+    var payload = {
+      formType:        'Order Details',
+      fullName:        name  || '',
+      email:           email || '',
+      package:         pkgLabel,
+      hostingPlatform: selectedHosting ? hostingMap[selectedHosting] : 'Not selected',
+      setupHelp:       needsSetupHelp === 'yes' ? 'Yes — needs help' : needsSetupHelp === 'no' ? 'No — self-managed' : 'Not answered',
+      orderTotal:      '$' + currentTotal.toFixed(2),
+      addOns:          addonsList.length ? addonsList.join(', ') : 'None'
+    };
+
+    // Send as form-encoded POST via fetch
+    var formData = new FormData();
+    Object.keys(payload).forEach(function(key) {
+      formData.append(key, payload[key]);
+    });
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: formData
+    }).catch(function(err) { console.log('Fetch error:', err); });
+  }
+
+  function showSuccess(name) {
+    document.getElementById('payment-element').innerHTML = '';
+    document.getElementById('express-checkout-element').innerHTML = '';
+    document.getElementById('or-divider').style.display = 'none';
+    document.getElementById('pay-btn').style.display = 'none';
+    document.getElementById('no-selection-notice').style.display = 'none';
+    document.querySelector('.payment-section').innerHTML =
+      '<div style="text-align:center;padding:32px 24px;">' +
+      '<div style="font-size:48px;margin-bottom:16px;">🎉</div>' +
+      '<p style="font-family:\'DM Serif Display\',serif;font-size:22px;color:#1a3d3d;font-weight:400;margin-bottom:8px;">Payment Received!</p>' +
+      '<p style="font-size:14px;color:#557070;line-height:1.6;">Thank you' + (name ? ', ' + name : '') + '! We\'ll be in touch shortly to get started on your project.</p>' +
+      '</div>';
+  }
+
+  var stripeInitTimer = null;
+  function initStripe() {
+    if (!selectedPackage || currentTotal <= 0) return;
+    if (!selectedHosting || !needsSetupHelp) return;
+    clearTimeout(stripeInitTimer);
+    stripeInitTimer = setTimeout(function() { _initStripe(); }, 300);
+  }
+
+  function _initStripe() {
+    var amountCents = Math.round(currentTotal * 100);
+    fetch(NETLIFY_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: amountCents, description: buildDescription(), currency: 'usd' })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!data.clientSecret) { console.error('No clientSecret:', data); return; }
+      clientSecret = data.clientSecret;
+
+      if (elements) { elements.destroy(); }
+
+      elements = stripe.elements({ clientSecret: clientSecret, appearance: {
+        theme: 'stripe',
+        variables: { colorPrimary: '#6AABB0', borderRadius: '10px', fontFamily: 'DM Sans, sans-serif' }
+      }});
+
+      var expressOptions = {
+        buttonType: { applePay: 'buy', googlePay: 'buy' },
+        layout: { maxColumns: 2, maxRows: 1 }
+      };
+      expressElement = elements.create('expressCheckout', expressOptions);
+      expressElement.mount('#express-checkout-element');
+
+      expressElement.on('confirm', function(event) {
+        var returnUrl = window.location.origin + window.location.pathname + '?payment=complete';
+        stripe.confirmPayment({
+          elements: elements,
+          clientSecret: clientSecret,
+          confirmParams: { return_url: returnUrl }
+        }).then(function(result) {
+          if (result.error) {
+            document.getElementById('payment-message').textContent = result.error.message;
+          } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+            submitToJotform('', '');
+            showSuccess('');
+          }
+        });
+      });
+
+      expressElement.on('ready', function(e) {
+        if (e.availablePaymentMethods && Object.keys(e.availablePaymentMethods).length > 0) {
+          document.getElementById('or-divider').style.display = 'flex';
+        }
+      });
+
+      paymentElement = elements.create('payment', {
+        layout: { type: 'accordion', defaultCollapsed: false }
+      });
+      paymentElement.mount('#payment-element');
+      document.getElementById('pay-btn').style.display = 'block';
+    })
+    .catch(function(e) { console.error('Stripe init error:', e); });
+  }
+
+  function handlePayment() {
+    if (!selectedPackage) { alert('Please select a package before paying.'); return; }
+    var btn = document.getElementById('pay-btn');
+    btn.disabled = true;
+    btn.textContent = 'Processing...';
+    document.getElementById('payment-message').textContent = '';
+
+    var returnUrl = window.location.origin + window.location.pathname + '?payment=complete';
+
+    stripe.confirmPayment({
+      elements: elements,
+      clientSecret: clientSecret,
+      confirmParams: {
+        return_url: returnUrl
+      },
+      redirect: 'always'
+    }).then(function(result) {
+      btn.disabled = false;
+      btn.textContent = 'Pay Now';
+      if (result.error) {
+        document.getElementById('payment-message').textContent = result.error.message;
+      } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+        submitToJotform('', '');
+        showSuccess('');
+      }
+    });
+  }
+
+  // Handle return from redirect-based payments (Cash App, bank redirects etc)
+  function checkPaymentReturn() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'complete') {
+      var paymentIntentId = params.get('payment_intent');
+      var clientSecretParam = params.get('payment_intent_client_secret');
+      if (clientSecretParam) {
+        stripe.retrievePaymentIntent(clientSecretParam).then(function(result) {
+          if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+            submitToJotform('', '');
+            showSuccess('');
+          } else {
+            document.getElementById('payment-message').textContent = 'Payment was not completed. Please try again.';
+          }
+        });
+      }
+    }
+  }
+
+  function initFromURL() {
+    var params = new URLSearchParams(window.location.search);
+    var pkg = params.get('package');
+    if (!pkg) return;
+    var banner = document.getElementById('url-welcome-banner');
+    if (banner) banner.style.display = 'flex';
+    if (pkg === 'glowup') { selectPackage('glowup'); selectGlowup({ stopPropagation: function(){} }, 'sm'); }
+    else if (pkg === 'glowup_lg') { selectPackage('glowup'); selectGlowup({ stopPropagation: function(){} }, 'lg'); }
+    else if (pkg === 'quickfixes') { selectPackage('quickfixes'); }
+    else if (pkg === 'doneforyou') { selectPackage('doneforyou'); }
+    else if (pkg === 'allinclusive') { selectPackage('allinclusive'); }
+    // Show pre-selected snackbar
+    setTimeout(function() {
+      var snackbar = document.getElementById('pkgSnackbar');
+      if (snackbar) {
+        snackbar.classList.add('show');
+        setTimeout(function() { snackbar.classList.remove('show'); }, 5000);
+      }
+    }, 600);
+    setTimeout(function() {
+      var anchor = document.getElementById('order-summary-anchor');
+      if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 400);
+  }
+
+  updateSummary();
+  initFromURL();
+  checkPaymentReturn();
+</script>
+</body>
+</html>
