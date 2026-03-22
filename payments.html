@@ -562,7 +562,9 @@
   function showCashAppForm() {}
 
   function handleCashAppSubmit() {
-    submitToJotform('Cash App Payment', 'via-cashapp');
+    var name = document.getElementById('customer-name') ? document.getElementById('customer-name').value.trim() : '';
+    var email = document.getElementById('customer-email') ? document.getElementById('customer-email').value.trim() : '';
+    submitToJotform(name || 'Not provided', email || 'Not provided');
     window.open('https://cash.app/$TECWebs/' + currentTotal.toFixed(2), '_blank');
     document.getElementById('cashapp-section').innerHTML =
       '<div style="text-align:center;padding:16px;background:#f0faf0;border:2px solid #00D632;border-radius:10px;">' +
@@ -638,7 +640,7 @@
   }
 
   function submitToJotform(name, email) {
-    var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyKSIlD942kVPHMWrg7l0FkJL5EhIcuXJLTrecdx6WJSg5woeglv1bSE0lK5_hVKZAB/exec';
+    var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyUfCkU94vCgPM0Dnh_pHFDamyA-fbD_Y1tlnIiIqg_zvTLlntczp3rxR_oOG1fV3dm/exec';
     // Use captured name/email from form fields if not passed in
     var capturedName = document.getElementById('customer-name') ? document.getElementById('customer-name').value.trim() : '';
     var capturedEmail = document.getElementById('customer-email') ? document.getElementById('customer-email').value.trim() : '';
