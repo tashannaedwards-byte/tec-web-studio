@@ -90,7 +90,7 @@
     .setup-opt:hover { border-color: var(--teal); background: var(--teal-light); }
     .setup-opt.selected { border-color: var(--teal); background: var(--teal-light); color: var(--teal-dark); }
     .summary-box { background: var(--white); border: 2px solid var(--border); border-radius: 16px; overflow: hidden; margin-bottom: 24px; box-shadow: var(--shadow); }
-    .summary-header { background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%); padding: 16px 24px; }
+    .summary-header { background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) %); padding: 16px 24px; }
     .summary-header h3 { font-family: 'DM Serif Display', serif; font-size: 18px; color: white; }
     .summary-lines { padding: 20px 24px; }
     .summary-line { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #f0f0f0; color: var(--text); }
@@ -400,7 +400,7 @@
   var currentTotal = 0;
 
   var packages = {
-    glowup:       { label: 'The Glow-Up (1–4 pages)', price: 100 },
+    glowup:       { label: 'The Glow-Up (1–4 pages)', price: 0.50 },
     glowup_lg:    { label: 'The Glow-Up (5–8 pages)', price: 200 },
     quickfixes:   { label: '🌱✨ Site Refreshers',     price: 299 },
     doneforyou:   { label: 'Done-for-You Website',    price: 400 },
