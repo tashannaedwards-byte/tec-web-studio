@@ -170,11 +170,11 @@
       <div class="glowup-options">
         <div class="glowup-opt active" id="glowup-sm" onclick="selectGlowup(event,'sm')">
           <div class="go-pages">1–4 pages</div>
-          <div class="go-price">$100</div>
+          <div class="go-price">$0.50</div>
         </div>
         <div class="glowup-opt" id="glowup-lg" onclick="selectGlowup(event,'lg')">
           <div class="go-pages">5–8 pages</div>
-          <div class="go-price">$200</div>
+          <div class="go-price">$0.50</div>
         </div>
       </div>
     </div>
@@ -427,8 +427,8 @@
   var currentTotal = 0;
 
   var packages = {
-    glowup:       { label: 'The Glow-Up (1–4 pages)', price: 100 },
-    glowup_lg:    { label: 'The Glow-Up (5–8 pages)', price: 200 },
+    glowup:       { label: 'The Glow-Up (1–4 pages)', price: 0.50 }, // TEMP TEST PRICE
+    glowup_lg:    { label: 'The Glow-Up (5–8 pages)', price: 0.50 }, // TEMP TEST PRICE
     quickfixes:   { label: '🌱✨ Site Refreshers',     price: 299 },
     doneforyou:   { label: 'Done-for-You Website',    price: 400 },
     allinclusive: { label: 'All-Inclusive',           price: 699 },
@@ -802,4 +802,4 @@
   checkPaymentReturn();
 </script>
 </body>
-</html>
+</html> 
