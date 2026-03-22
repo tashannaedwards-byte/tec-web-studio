@@ -571,8 +571,6 @@
   var stripeInitTimer = null;
   function initStripe() {
     if (!selectedPackage || currentTotal <= 0) return;
-    // Don't init Stripe until hosting and setup are selected
-    if (!selectedHosting || !needsSetupHelp) return;
     clearTimeout(stripeInitTimer);
     stripeInitTimer = setTimeout(function() { _initStripe(); }, 300);
   }
