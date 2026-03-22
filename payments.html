@@ -146,7 +146,7 @@
       <div class="glowup-options">
         <div class="glowup-opt active" id="glowup-sm" onclick="selectGlowup(event,'sm')">
           <div class="go-pages">1–4 pages</div>
-          <div class="go-price">$100</div>
+          <div class="go-price">$0.50</div>
         </div>
         <div class="glowup-opt" id="glowup-lg" onclick="selectGlowup(event,'lg')">
           <div class="go-pages">5–8 pages</div>
@@ -188,41 +188,25 @@
   </div>
 
   <div class="section-label">Step 2 — Add-Ons (Optional)</div>
-  <div class="addons-grid" style="margin-bottom:16px;">
-    <div class="addon-card" id="addon-expedited" onclick="toggleAddon('expedited',75)">
-      <div class="addon-checkbox"></div>
-      <div class="addon-info">
-        <div class="addon-name">⚡ Expedited Delivery</div>
-        <div class="addon-detail">Rush your project to the top of the queue</div>
-      </div>
-      <div class="addon-price">+$75</div>
+
+  <!-- Expedited Delivery -->
+  <div class="maintenance-section" style="margin-bottom:16px;">
+    <div class="maintenance-header">
+      <span>⚡ Expedited Delivery</span>
     </div>
-    <div class="addon-card" id="addon-maint3" onclick="toggleAddon('maint3',25)">
-      <div class="addon-checkbox"></div>
-      <div class="addon-info">
-        <div class="addon-name">3-Day Maintenance</div>
-        <div class="addon-detail">One-time update with 3-day turnaround</div>
+    <div class="maintenance-options">
+      <div class="maint-opt" id="addon-expedited" onclick="toggleAddon('expedited',75)" style="cursor:pointer;">
+        <div class="maint-radio"></div>
+        <div class="maint-label">
+          <span>Rush my project to the top of the queue</span>
+          <small>Your project gets prioritized for faster delivery</small>
+        </div>
+        <div class="maint-price">+$75</div>
       </div>
-      <div class="addon-price">+$25</div>
-    </div>
-    <div class="addon-card" id="addon-maint2" onclick="toggleAddon('maint2',35)">
-      <div class="addon-checkbox"></div>
-      <div class="addon-info">
-        <div class="addon-name">2-Day Maintenance</div>
-        <div class="addon-detail">One-time update with 2-day turnaround</div>
-      </div>
-      <div class="addon-price">+$35</div>
-    </div>
-    <div class="addon-card" id="addon-maint24" onclick="toggleAddon('maint24',50)">
-      <div class="addon-checkbox"></div>
-      <div class="addon-info">
-        <div class="addon-name">24-Hour Maintenance</div>
-        <div class="addon-detail">One-time update with 24-hour turnaround</div>
-      </div>
-      <div class="addon-price">+$50</div>
     </div>
   </div>
 
+  <!-- Maintenance Plans + Last-Minute Fixes combined -->
   <div class="maintenance-section">
     <div class="maintenance-header">
       <span>📅 Maintenance Plans (Optional)</span>
@@ -247,6 +231,38 @@
       </div>
       <div id="subscription-notice" style="display:none;background:#fff8e1;border:1px solid #ffe082;border-radius:10px;padding:14px 16px;font-size:13px;color:#7a5c00;line-height:1.6;">
         ⚠️ <strong>Heads up:</strong> The Active Site Maintenance plan is a <strong>recurring monthly subscription of $150</strong>. Your card will be charged automatically each month until you cancel.
+      </div>
+
+      <!-- Dashed divider -->
+      <hr style="border:none;border-top:1.5px dashed #d0e4e6;margin:8px 0 12px;"/>
+
+      <!-- Last-Minute Fixes sub-section -->
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#557070;margin-bottom:4px;">🛠️ Last-Minute Fixes</div>
+      <div style="font-size:12px;color:#557070;margin-bottom:10px;line-height:1.5;">When something needs to be handled fast, choose your turnaround. Perfect for text updates, price changes, image swaps, link fixes, and more.</div>
+
+      <div class="maint-opt" id="addon-maint3" onclick="toggleAddon('maint3',25)" style="cursor:pointer;">
+        <div class="maint-radio"></div>
+        <div class="maint-label">
+          <span>3-Day Turnaround</span>
+          <small>One-time updates delivered in 3 days</small>
+        </div>
+        <div class="maint-price">+$25</div>
+      </div>
+      <div class="maint-opt" id="addon-maint2" onclick="toggleAddon('maint2',35)" style="cursor:pointer;">
+        <div class="maint-radio"></div>
+        <div class="maint-label">
+          <span>2-Day Turnaround</span>
+          <small>One-time updates delivered in 2 days</small>
+        </div>
+        <div class="maint-price">+$35</div>
+      </div>
+      <div class="maint-opt" id="addon-maint24" onclick="toggleAddon('maint24',50)" style="cursor:pointer;">
+        <div class="maint-radio"></div>
+        <div class="maint-label">
+          <span>24-Hour Turnaround</span>
+          <small>One-time updates delivered in 24 hours</small>
+        </div>
+        <div class="maint-price">+$50</div>
       </div>
     </div>
   </div>
@@ -339,8 +355,8 @@
 
   <!-- Cash App Section (outside Stripe, no interference) -->
   <div id="cashapp-section" style="display:none;margin-bottom:16px;">
-    <button onclick="handleCashAppSubmit()" style="width:100%;background:none;border:2px solid #00D632;border-radius:8px;padding:0 24px;height:48px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#00a825;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="#00D632"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm1.193 16.91c-.23.86-.96 1.45-1.84 1.55v.61a.56.56 0 01-.56.56h-.7a.56.56 0 01-.56-.56v-.64a4.4 4.4 0 01-2.1-.84.56.56 0 01-.06-.8l.48-.54a.56.56 0 01.77-.06c.47.37 1.01.58 1.6.58.7 0 1.16-.3 1.16-.82 0-.44-.27-.7-1.25-1.01-1.37-.42-2.3-1.01-2.3-2.3 0-.97.67-1.72 1.72-1.98v-.63a.56.56 0 01.56-.56h.7a.56.56 0 01.56.56v.66c.56.1 1.06.33 1.48.67a.56.56 0 01.07.8l-.45.52a.56.56 0 01-.77.08 1.9 1.9 0 00-1.2-.41c-.64 0-1.03.27-1.03.74 0 .42.3.65 1.35 1 1.4.43 2.22 1.06 2.22 2.33z"/></svg>
+    <button onclick="handleCashAppSubmit()" style="width:100%;background:#00D632;border:none;border-radius:8px;padding:0 24px;height:48px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm1.193 16.91c-.23.86-.96 1.45-1.84 1.55v.61a.56.56 0 01-.56.56h-.7a.56.56 0 01-.56-.56v-.64a4.4 4.4 0 01-2.1-.84.56.56 0 01-.06-.8l.48-.54a.56.56 0 01.77-.06c.47.37 1.01.58 1.6.58.7 0 1.16-.3 1.16-.82 0-.44-.27-.7-1.25-1.01-1.37-.42-2.3-1.01-2.3-2.3 0-.97.67-1.72 1.72-1.98v-.63a.56.56 0 01.56-.56h.7a.56.56 0 01.56.56v.66c.56.1 1.06.33 1.48.67a.56.56 0 01.07.8l-.45.52a.56.56 0 01-.77.08 1.9 1.9 0 00-1.2-.41c-.64 0-1.03.27-1.03.74 0 .42.3.65 1.35 1 1.4.43 2.22 1.06 2.22 2.33z"/></svg>
       Pay with Cash App
     </button>
   </div>
@@ -392,10 +408,10 @@
   };
 
   var addonData = {
-    expedited: { label: 'Expedited Delivery', price: 75 },
-    maint3:    { label: '3-Day Maintenance',  price: 25 },
-    maint2:    { label: '2-Day Maintenance',  price: 35 },
-    maint24:   { label: '24-Hour Maintenance',price: 50 },
+    expedited: { label: 'Expedited Delivery',      price: 75 },
+    maint3:    { label: '3-Day Turnaround',         price: 25 },
+    maint2:    { label: '2-Day Turnaround',         price: 35 },
+    maint24:   { label: '24-Hour Turnaround',       price: 50 },
   };
 
   var maintenanceData = {
@@ -421,15 +437,31 @@
 
   function toggleAddon(id, price) {
     var card = document.getElementById('addon-' + id);
-    if (addons[id]) { delete addons[id]; card.classList.remove('selected'); }
-    else { addons[id] = price; card.classList.add('selected'); }
+    if (addons[id]) {
+      delete addons[id];
+      card.classList.remove('selected');
+      card.querySelector('.maint-radio') && (card.querySelector('.maint-radio').style.borderColor = '');
+    } else {
+      // For last-minute fixes, only allow one at a time
+      if (id === 'maint3' || id === 'maint2' || id === 'maint24') {
+        ['maint3','maint2','maint24'].forEach(function(k) {
+          if (addons[k]) {
+            delete addons[k];
+            var c = document.getElementById('addon-' + k);
+            if (c) c.classList.remove('selected');
+          }
+        });
+      }
+      addons[id] = price;
+      card.classList.add('selected');
+    }
     updateSummary();
     initStripe();
   }
 
   function selectMaintenance(id, price) {
     if (maintenancePlan === id) { clearMaintenance(); return; }
-    document.querySelectorAll('.maint-opt').forEach(function(o) { o.classList.remove('selected'); });
+    document.querySelectorAll('#maint-monthly, #maint-active').forEach(function(o) { o.classList.remove('selected'); });
     document.getElementById('maint-' + id).classList.add('selected');
     maintenancePlan = id;
     var notice = document.getElementById('subscription-notice');
@@ -439,7 +471,7 @@
   }
 
   function clearMaintenance() {
-    document.querySelectorAll('.maint-opt').forEach(function(o) { o.classList.remove('selected'); });
+    document.querySelectorAll('#maint-monthly, #maint-active').forEach(function(o) { o.classList.remove('selected'); });
     maintenancePlan = null;
     var notice = document.getElementById('subscription-notice');
     if (notice) notice.style.display = 'none';
@@ -453,6 +485,7 @@
     selectedHosting = id;
     document.getElementById('setup-assist-wrap').style.display = 'block';
     updateSummary();
+    initStripe();
   }
 
   function selectSetup(choice) {
@@ -572,6 +605,7 @@
   var stripeInitTimer = null;
   function initStripe() {
     if (!selectedPackage || currentTotal <= 0) return;
+    if (!selectedHosting || !needsSetupHelp) return;
     clearTimeout(stripeInitTimer);
     stripeInitTimer = setTimeout(function() { _initStripe(); }, 300);
   }
