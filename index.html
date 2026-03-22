@@ -1878,17 +1878,26 @@ footer {
             <div class="ifs-errmsg" id="ifsCompanyErr">Please enter your company name.</div>
           </div>
 
-          <!-- Service -->
+          <!-- Existing site question — NEW -->
           <div class="ifs-field">
+            <label class="ifs-label">Do you already have an existing website? <span class="req">*</span></label>
+            <div class="ifs-opts single">
+              <div class="ifs-opt"><input type="radio" name="ifsExisting" id="ifsExistingY" value="Yes"><label for="ifsExistingY">Yes</label></div>
+              <div class="ifs-opt"><input type="radio" name="ifsExisting" id="ifsExistingN" value="No"><label for="ifsExistingN">No</label></div>
+            </div>
+            <div class="ifs-errmsg" id="ifsExistingErr">Please select an option.</div>
+          </div>
+
+          <!-- Service (only shown if NO existing site) -->
+          <div class="ifs-field" id="ifsSvcGroup">
             <label class="ifs-label">What kind of service do you need? <span class="req">*</span></label>
             <div class="ifs-opts">
               <div class="ifs-opt"><input type="radio" name="ifsSvc" id="ifsSvc1" value="Business Website"><label for="ifsSvc1">Business Website</label></div>
               <div class="ifs-opt"><input type="radio" name="ifsSvc" id="ifsSvc2" value="Portfolio/Personal Site"><label for="ifsSvc2">Portfolio/Personal Site</label></div>
               <div class="ifs-opt"><input type="radio" name="ifsSvc" id="ifsSvc3" value="E-commerce Store"><label for="ifsSvc3">E-commerce Store</label></div>
-              <div class="ifs-opt"><input type="radio" name="ifsSvc" id="ifsSvc4" value="Website Revamp"><label for="ifsSvc4">Website Revamp</label></div>
-              <div class="ifs-opt"><input type="radio" name="ifsSvc" id="ifsSvc5" value="The Signature Build"><label for="ifsSvc5">The Signature Build</label></div>
+              <div class="ifs-opt"><input type="radio" name="ifsSvc" id="ifsSvc4" value="The Signature Build"><label for="ifsSvc4">The Signature Build</label></div>
             </div>
-            <div class="ifs-sig-caption" id="ifsSigCaption">✨ We handle everything from your brand identity to your final launch — content, SEO, brand alignment, name &amp; logo creation, and more.</div>
+            <div class="ifs-sig-caption" id="ifsSigCaption">We handle everything from your brand identity to your final launch — content, SEO, brand alignment, name &amp; logo creation, and more.</div>
             <div class="ifs-errmsg" id="ifsSvcErr">Please select a service.</div>
           </div>
 
@@ -1913,10 +1922,10 @@ footer {
           </div>
 
           <!-- Time sensitive banner -->
-          <div class="ifs-ts-banner" id="ifsTsBanner">⚡ <strong>Time Sensitive!</strong> If you need the completed work as soon as possible, an additional $75 expedited fee will apply.</div>
+          <div class="ifs-ts-banner" id="ifsTsBanner"><strong>Time Sensitive!</strong> If you need the completed work as soon as possible, an additional $75 expedited fee will apply.</div>
 
-          <!-- Content written -->
-          <div class="ifs-field" id="ifsContentGroup">
+          <!-- Content written (hidden for Signature Build) -->
+          <div class="ifs-field hidden" id="ifsContentGroup">
             <label class="ifs-label">Do you need content written? <span class="req">*</span></label>
             <div class="ifs-opts single">
               <div class="ifs-opt"><input type="radio" name="ifsContent" id="ifsContentY" value="Yes"><label for="ifsContentY">Yes</label></div>
@@ -1925,8 +1934,8 @@ footer {
             <div class="ifs-errmsg" id="ifsContentErr">Please select an option.</div>
           </div>
 
-          <!-- Pages needed -->
-          <div class="ifs-field" id="ifsPagesGroup">
+          <!-- Pages needed (hidden for Signature Build) -->
+          <div class="ifs-field hidden" id="ifsPagesGroup">
             <label class="ifs-label">Pages needed <span class="req">*</span></label>
             <div class="ifs-opts single">
               <div class="ifs-opt"><input type="radio" name="ifsPages" id="ifsPages1" value="1-4"><label for="ifsPages1">1–4</label></div>
@@ -1936,8 +1945,8 @@ footer {
             <div class="ifs-errmsg" id="ifsPagesErr">Please select an option.</div>
           </div>
 
-          <!-- Special features -->
-          <div class="ifs-field" id="ifsFeaturesGroup">
+          <!-- Special features (hidden for Signature Build) -->
+          <div class="ifs-field hidden" id="ifsFeaturesGroup">
             <label class="ifs-label">Any special features or enhancements? <span class="req">*</span></label>
             <div class="ifs-opts">
               <div class="ifs-opt"><input type="checkbox" name="ifsFeat" id="ifsFeat1" value="Animations"><label for="ifsFeat1">Animations</label></div>
@@ -1956,7 +1965,10 @@ footer {
       (function() {
         var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyKSIlD942kVPHMWrg7l0FkJL5EhIcuXJLTrecdx6WJSg5woeglv1bSE0lK5_hVKZAB/exec';
 
-        // Conditionals
+        // Existing site conditionals
+        document.querySelectorAll('input[name="ifsExisting"]').forEach(function(r) {
+          r.addEventListener('change', updateCond);
+        });
         document.querySelectorAll('input[name="ifsSvc"]').forEach(function(r) {
           r.addEventListener('change', updateCond);
         });
@@ -1965,13 +1977,33 @@ footer {
         });
 
         function updateCond() {
+          var existing = document.querySelector('input[name="ifsExisting"]:checked');
+          var hasExisting = existing && existing.value === 'Yes';
           var svc = document.querySelector('input[name="ifsSvc"]:checked');
           var isSig = svc && svc.value === 'The Signature Build';
-          document.getElementById('ifsContentGroup').classList.toggle('hidden', isSig);
-          document.getElementById('ifsPagesGroup').classList.toggle('hidden', isSig);
-          document.getElementById('ifsFeaturesGroup').classList.toggle('hidden', isSig);
-          document.getElementById('ifsSigCaption').classList.toggle('show', isSig);
-          if (isSig) {
+
+          // Show service question only if NO existing site
+          var svcGroup = document.getElementById('ifsSvcGroup');
+          // Show service group only when No is selected; hide when Yes or nothing selected
+          var showSvcGroup = existing && existing.value === 'No';
+          svcGroup.classList.toggle('hidden', !showSvcGroup);
+          if (hasExisting) {
+            document.querySelectorAll('input[name="ifsSvc"]').forEach(function(r){ r.checked=false; });
+          }
+
+          // Show content/pages/features if:
+          // - existing site (always show these)
+          // - no existing site AND not Signature Build
+          var showSubQ = existing && !isSig;
+          document.getElementById('ifsContentGroup').classList.toggle('hidden', !showSubQ);
+          document.getElementById('ifsPagesGroup').classList.toggle('hidden', !showSubQ);
+          document.getElementById('ifsFeaturesGroup').classList.toggle('hidden', !showSubQ);
+
+          // Signature Build caption
+          document.getElementById('ifsSigCaption').classList.toggle('show', isSig && !hasExisting);
+
+          // Clear hidden fields
+          if (!showSubQ) {
             document.querySelectorAll('input[name="ifsContent"]').forEach(function(r){ r.checked=false; });
             document.querySelectorAll('input[name="ifsPages"]').forEach(function(r){ r.checked=false; });
             document.querySelectorAll('input[name="ifsFeat"]').forEach(function(c){ c.checked=false; });
@@ -2001,14 +2033,21 @@ footer {
           showErr('ifsEmail','ifsEmailErr',!emOk); if(!emOk) ok=false;
           var co = document.getElementById('ifsCompany').value.trim();
           showErr('ifsCompany','ifsCompanyErr',!co); if(!co) ok=false;
+          var existing = document.querySelector('input[name="ifsExisting"]:checked');
+          showGroupErr('ifsExistingErr',!existing); if(!existing) ok=false;
+          var hasExisting = existing && existing.value === 'Yes';
           var svc = document.querySelector('input[name="ifsSvc"]:checked');
-          showGroupErr('ifsSvcErr',!svc); if(!svc) ok=false;
+          // Only require service if no existing site
+          if (!hasExisting) {
+            showGroupErr('ifsSvcErr',!svc); if(!svc) ok=false;
+          }
           var desc = document.getElementById('ifsDesc').value.trim();
           showErr('ifsDesc','ifsDescErr',!desc); if(!desc) ok=false;
           var tl = document.getElementById('ifsTl').value;
           showErr('ifsTl','ifsTlErr',!tl); if(!tl) ok=false;
           var isSig = svc && svc.value === 'The Signature Build';
-          if (!isSig) {
+          // Require content/pages/features if existing site OR (no existing site AND not Signature Build)
+          if (existing && !isSig) {
             var cw = document.querySelector('input[name="ifsContent"]:checked');
             showGroupErr('ifsContentErr',!cw); if(!cw) ok=false;
             var pg = document.querySelector('input[name="ifsPages"]:checked');
@@ -2025,20 +2064,25 @@ footer {
           var btn = document.getElementById('ifsBtn');
           btn.disabled = true;
           btn.innerHTML = '<span class="ifs-spinner"></span>Sending...';
+          var existing = document.querySelector('input[name="ifsExisting"]:checked');
+          var hasExisting = existing && existing.value === 'Yes';
           var svc = document.querySelector('input[name="ifsSvc"]:checked');
           var isSig = svc && svc.value === 'The Signature Build';
-          var feats = isSig ? [] : [...document.querySelectorAll('input[name="ifsFeat"]:checked')].map(function(c){return c.value;});
+          var showSubQ = existing && !isSig;
+          var feats = showSubQ ? [...document.querySelectorAll('input[name="ifsFeat"]:checked')].map(function(c){return c.value;}) : [];
           var payload = {
             formType: 'Service Inquiry',
+            existingSite: existing ? existing.value : 'No',
             firstName: document.getElementById('ifsFirst').value.trim(),
             lastName: document.getElementById('ifsLast').value.trim(),
             email: document.getElementById('ifsEmail').value.trim(),
             company: document.getElementById('ifsCompany').value.trim(),
-            serviceType: svc ? svc.value : '',
+            existingSite: existing ? existing.value : '',
+            serviceType: hasExisting ? 'Existing Site' : (svc ? svc.value : ''),
             description: document.getElementById('ifsDesc').value.trim(),
             timeline: document.getElementById('ifsTl').value,
-            contentWritten: isSig ? 'N/A' : (document.querySelector('input[name="ifsContent"]:checked') ? document.querySelector('input[name="ifsContent"]:checked').value : ''),
-            pagesNeeded: isSig ? 'N/A' : (document.querySelector('input[name="ifsPages"]:checked') ? document.querySelector('input[name="ifsPages"]:checked').value : ''),
+            contentWritten: showSubQ ? (document.querySelector('input[name="ifsContent"]:checked') ? document.querySelector('input[name="ifsContent"]:checked').value : '') : 'N/A',
+            pagesNeeded: showSubQ ? (document.querySelector('input[name="ifsPages"]:checked') ? document.querySelector('input[name="ifsPages"]:checked').value : '') : 'N/A',
             features: feats.join(', ') || 'N/A'
           };
           // Submit via hidden form to bypass CORS
