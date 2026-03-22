@@ -170,11 +170,11 @@
       <div class="glowup-options">
         <div class="glowup-opt active" id="glowup-sm" onclick="selectGlowup(event,'sm')">
           <div class="go-pages">1–4 pages</div>
-          <div class="go-price">$0.50</div>
+          <div class="go-price">$100</div>
         </div>
         <div class="glowup-opt" id="glowup-lg" onclick="selectGlowup(event,'lg')">
           <div class="go-pages">5–8 pages</div>
-          <div class="go-price">$0.50</div>
+          <div class="go-price">$200</div>
         </div>
       </div>
     </div>
@@ -189,14 +189,23 @@
       <div class="pkg-price">$299</div>
     </div>
     <div class="pkg-card" id="pkg-doneforyou" onclick="selectPackage('doneforyou')">
-      <div class="pkg-name">🌐 Done-for-You</div>
-      <div class="pkg-desc">Starting from scratch with content ready</div>
+      <div class="pkg-name">Done-for-You</div>
+      <div class="pkg-desc">Starting from scratch — you choose what's included</div>
       <ul class="pkg-features">
         <li>Full website design &amp; build</li>
         <li>First 4 pages, links &amp; animations</li>
         <li>1 month maintenance included</li>
       </ul>
-      <div class="pkg-price">$400</div>
+      <div class="glowup-options">
+        <div class="glowup-opt active" id="dfy-nocontent" onclick="selectDFY(event,'nocontent')">
+          <div class="go-pages">I have content</div>
+          <div class="go-price">$400</div>
+        </div>
+        <div class="glowup-opt" id="dfy-content" onclick="selectDFY(event,'content')">
+          <div class="go-pages">Write my content</div>
+          <div class="go-price">$500</div>
+        </div>
+      </div>
     </div>
     <div class="pkg-card" id="pkg-allinclusive" onclick="selectPackage('allinclusive')">
       <div class="pkg-name">🚀 All-Inclusive</div>
@@ -391,6 +400,23 @@
   </div>
 
   <div class="payment-section">
+    <!-- Customer info capture -->
+    <div id="customer-info" style="margin-bottom:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#2d3a3a;margin-bottom:6px;">Your Name <span style="color:#6AABB0;">*</span></label>
+          <input type="text" id="customer-name" placeholder="Jane Smith"
+            style="width:100%;padding:10px 13px;border:1.5px solid #d0e4e6;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='#6AABB0'" onblur="this.style.borderColor='#d0e4e6'"/>
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:600;color:#2d3a3a;margin-bottom:6px;">Your Email <span style="color:#6AABB0;">*</span></label>
+          <input type="email" id="customer-email" placeholder="you@example.com"
+            style="width:100%;padding:10px 13px;border:1.5px solid #d0e4e6;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;"
+            onfocus="this.style.borderColor='#6AABB0'" onblur="this.style.borderColor='#d0e4e6'"/>
+        </div>
+      </div>
+    </div>
     <p class="payment-note"><strong>Secure checkout via Stripe.</strong> Apple Pay, Google Pay, Afterpay, Klarna, credit &amp; debit cards all accepted.</p>
     <div class="disabled-notice" id="no-selection-notice">⚠️ Please select a package above before proceeding to payment.</div>
     <div class="disabled-notice" id="no-hosting-notice" style="display:none;">⚠️ Please select a hosting platform in Step 3 before proceeding to payment.</div>
@@ -426,12 +452,14 @@
   var needsSetupHelp = null;
   var currentTotal = 0;
 
+  var dfyType = 'nocontent';
   var packages = {
-    glowup:       { label: 'The Glow-Up (1–4 pages)', price: 0.50 }, // TEMP TEST PRICE
-    glowup_lg:    { label: 'The Glow-Up (5–8 pages)', price: 0.50 }, // TEMP TEST PRICE
-    quickfixes:   { label: '🌱✨ Site Refreshers',     price: 299 },
-    doneforyou:   { label: 'Done-for-You Website',    price: 400 },
-    allinclusive: { label: 'All-Inclusive',           price: 699 },
+    glowup:            { label: 'The Glow-Up (1–4 pages)',           price: 100 },
+    glowup_lg:         { label: 'The Glow-Up (5–8 pages)',           price: 200 },
+    quickfixes:        { label: 'Site Refreshers',                   price: 299 },
+    doneforyou:        { label: 'Done-for-You (I have content)',     price: 400 },
+    doneforyou_content:{ label: 'Done-for-You (Content included)',   price: 500 },
+    allinclusive:      { label: 'All-Inclusive',                     price: 699 },
   };
 
   var addonData = {
@@ -460,6 +488,14 @@
     document.getElementById('glowup-sm').classList.toggle('active', size === 'sm');
     document.getElementById('glowup-lg').classList.toggle('active', size === 'lg');
     selectPackage('glowup');
+  }
+
+  function selectDFY(e, type) {
+    e.stopPropagation();
+    dfyType = type;
+    document.getElementById('dfy-nocontent').classList.toggle('active', type === 'nocontent');
+    document.getElementById('dfy-content').classList.toggle('active', type === 'content');
+    selectPackage('doneforyou');
   }
 
   function toggleAddon(id, price) {
@@ -543,7 +579,7 @@
     var html = '';
 
     if (selectedPackage) {
-      var key = selectedPackage === 'glowup' ? (glowupSize === 'lg' ? 'glowup_lg' : 'glowup') : selectedPackage;
+      var key = selectedPackage === 'glowup' ? (glowupSize === 'lg' ? 'glowup_lg' : 'glowup') : selectedPackage === 'doneforyou' ? (dfyType === 'content' ? 'doneforyou_content' : 'doneforyou') : selectedPackage;
       var pkg = packages[key];
       total += pkg.price;
       html += '<div class="summary-line"><span>' + pkg.label + '</span><span><strong>$' + pkg.price + '</strong></span></div>';
@@ -591,7 +627,7 @@
   function buildDescription() {
     var parts = [];
     if (selectedPackage) {
-      var key = selectedPackage === 'glowup' ? (glowupSize === 'lg' ? 'glowup_lg' : 'glowup') : selectedPackage;
+      var key = selectedPackage === 'glowup' ? (glowupSize === 'lg' ? 'glowup_lg' : 'glowup') : selectedPackage === 'doneforyou' ? (dfyType === 'content' ? 'doneforyou_content' : 'doneforyou') : selectedPackage;
       parts.push(packages[key].label);
     }
     Object.keys(addons).forEach(function(id) { parts.push(addonData[id].label); });
@@ -602,10 +638,14 @@
   }
 
   function submitToJotform(name, email) {
-    // ⬇ REPLACE THIS URL with your Google Apps Script Web App URL
     var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyKSIlD942kVPHMWrg7l0FkJL5EhIcuXJLTrecdx6WJSg5woeglv1bSE0lK5_hVKZAB/exec';
+    // Use captured name/email from form fields if not passed in
+    var capturedName = document.getElementById('customer-name') ? document.getElementById('customer-name').value.trim() : '';
+    var capturedEmail = document.getElementById('customer-email') ? document.getElementById('customer-email').value.trim() : '';
+    name = name || capturedName || 'Not provided';
+    email = email || capturedEmail || 'Not provided';
 
-    var key = selectedPackage === 'glowup' ? (glowupSize === 'lg' ? 'glowup_lg' : 'glowup') : selectedPackage;
+    var key = selectedPackage === 'glowup' ? (glowupSize === 'lg' ? 'glowup_lg' : 'glowup') : selectedPackage === 'doneforyou' ? (dfyType === 'content' ? 'doneforyou_content' : 'doneforyou') : selectedPackage;
     var pkgLabel = selectedPackage ? packages[key].label : 'Not selected';
     var hostingMap = { wix:'Wix', squarespace:'Squarespace', wordpress:'WordPress', shopify:'Shopify', github:'GitHub Pages (Free)', webflow:'Webflow' };
 
@@ -802,4 +842,4 @@
   checkPaymentReturn();
 </script>
 </body>
-</html> 
+</html>
