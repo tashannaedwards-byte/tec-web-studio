@@ -594,7 +594,6 @@
 
     var noHostingNotice = document.getElementById('no-hosting-notice');
     var noSetupNotice = document.getElementById('no-setup-notice');
-    var cashappBtn = document.getElementById('cashapp-btn-wrap');
     if (noHostingNotice) noHostingNotice.style.display = (selectedPackage && !selectedHosting) ? 'block' : 'none';
     if (noSetupNotice) noSetupNotice.style.display = (selectedPackage && selectedHosting && !needsSetupHelp) ? 'block' : 'none';
     var isRecurring = maintenancePlan === 'active';
@@ -615,11 +614,11 @@
 
   function submitToJotform(name, email) {
     var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw6RnrAuk_Wo3SUgqe-Y2OJINQxtvZQEm8Eqd9AQV1tEX8nPQwyPklA9kxj6r9oO_m4OQ/exec';
-    // Use captured name/email from form fields if not passed in
+    // Always read from fields first
     var capturedName = document.getElementById('customer-name') ? document.getElementById('customer-name').value.trim() : '';
     var capturedEmail = document.getElementById('customer-email') ? document.getElementById('customer-email').value.trim() : '';
-    name = name || capturedName || 'Not provided';
-    email = email || capturedEmail || 'Not provided';
+    name = capturedName || name || 'Not provided';
+    email = capturedEmail || email || 'Not provided';
 
     var key = selectedPackage === 'glowup' ? (glowupSize === 'lg' ? 'glowup_lg' : 'glowup') : selectedPackage === 'doneforyou' ? (dfyType === 'content' ? 'doneforyou_content' : 'doneforyou') : selectedPackage;
     var pkgLabel = selectedPackage ? packages[key].label : 'Not selected';
