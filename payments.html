@@ -433,7 +433,7 @@
 <script src="https://js.stripe.com/v3/"></script>
 <script>
   var stripe = Stripe('pk_live_51TDUtoFUlbNwdF4YaCjZiGbEobOmm5XKIUzt6T1zQeMgMdZpzKHLjqaRf92xhJYWz05kwDUAoktYWDxGVxx32Z7n00IGkV75LZ');
-  var VERCEL_FN = 'https://tec-api.vercel.app/api/create-order';
+  var VERCEL_FN = 'https://YOUR-VERCEL-APP.vercel.app/api/create-order';
   var elements, paymentElement, expressElement;
   var clientSecret = null;
 
@@ -630,21 +630,44 @@
 
   function submitToJotform(name, email) {
     var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOkdC3T5o86oLUB3R122lQyKHIPH9W8csIb1oInn2bNQ01OZ3UfAYM7OaUyr6gbjb1iQ/exec';
+
     // Try to restore from sessionStorage first (needed after redirect-based payments)
     var savedOrder = null;
     try { savedOrder = JSON.parse(sessionStorage.getItem('tec_order') || 'null'); } catch(e) {}
 
-    var capturedName = document.getElementById('customer-name') ? document.getElementById('customer-name').value.trim() : '';
+    // Read live DOM fields
+    var capturedName  = document.getElementById('customer-name')  ? document.getElementById('customer-name').value.trim()  : '';
     var capturedEmail = document.getElementById('customer-email') ? document.getElementById('customer-email').value.trim() : '';
 
-    // Use live fields if available, fall back to saved state, then passed params
-    var finalName = capturedName || (savedOrder ? savedOrder.name : '') || name || 'Not provided';
-    var finalEmail = capturedEmail || (savedOrder ? savedOrder.email : '') || email || 'Not provided';
-    var finalPackage = (savedOrder && savedOrder.package !== 'Not selected') ? savedOrder.package : (selectedPackage ? packages[selectedPackage === 'glowup' ? (glowupSize === 'lg' ? 'glowup_lg' : 'glowup') : selectedPackage === 'doneforyou' ? (dfyType === 'content' ? 'doneforyou_content' : 'doneforyou') : selectedPackage].label : 'Not selected');
-    var finalHosting = (savedOrder && savedOrder.hosting !== 'Not selected') ? savedOrder.hosting : (selectedHosting ? {wix:'Wix',squarespace:'Squarespace',wordpress:'WordPress',shopify:'Shopify',github:'GitHub Pages (Free)',webflow:'Webflow'}[selectedHosting] : 'Not selected');
-    var finalSetup = savedOrder ? savedOrder.setupHelp : (needsSetupHelp === 'yes' ? 'Yes — needs help' : needsSetupHelp === 'no' ? 'No — self-managed' : 'Not answered');
-    var finalTotal = savedOrder ? savedOrder.total : ('$' + currentTotal.toFixed(2));
-    var finalAddOns = savedOrder ? savedOrder.addOns : 'None';
+    // Priority: live DOM > sessionStorage > passed params > fallback
+    var finalName    = capturedName  || (savedOrder ? savedOrder.name  : '') || name  || 'Not provided';
+    var finalEmail   = capturedEmail || (savedOrder ? savedOrder.email : '') || email || 'Not provided';
+
+    // Package key resolution
+    var pkgKey = selectedPackage === 'glowup'      ? (glowupSize === 'lg' ? 'glowup_lg' : 'glowup')
+               : selectedPackage === 'doneforyou'  ? (dfyType === 'content' ? 'doneforyou_content' : 'doneforyou')
+               : selectedPackage;
+
+    var finalPackage = (savedOrder && savedOrder.package && savedOrder.package !== 'Not selected')
+      ? savedOrder.package
+      : (pkgKey && packages[pkgKey] ? packages[pkgKey].label : 'Not selected');
+
+    var hostingMap = { wix:'Wix', squarespace:'Squarespace', wordpress:'WordPress', shopify:'Shopify', github:'GitHub Pages (Free)', webflow:'Webflow' };
+    var finalHosting = (savedOrder && savedOrder.hosting && savedOrder.hosting !== 'Not selected')
+      ? savedOrder.hosting
+      : (selectedHosting ? (hostingMap[selectedHosting] || selectedHosting) : 'Not selected');
+
+    var finalSetup = (savedOrder && savedOrder.setupHelp)
+      ? savedOrder.setupHelp
+      : (needsSetupHelp === 'yes' ? 'Yes — needs help' : needsSetupHelp === 'no' ? 'No — self-managed' : 'Not answered');
+
+    var finalTotal = (savedOrder && savedOrder.total)
+      ? savedOrder.total
+      : ('$' + currentTotal.toFixed(2));
+
+    var finalAddOns = (savedOrder && savedOrder.addOns)
+      ? savedOrder.addOns
+      : 'None';
 
     // Clear saved state after use
     try { sessionStorage.removeItem('tec_order'); } catch(e) {}
@@ -660,16 +683,22 @@
       addOns:          finalAddOns
     };
 
-    // Send as form-encoded POST via fetch
-    var formData = new FormData();
-    Object.keys(payload).forEach(function(key) {
-      formData.append(key, payload[key]);
-    });
-    fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      body: formData
-    }).catch(function(err) { console.log('Fetch error:', err); });
+    console.log('Submitting order to Apps Script:', payload);
+
+    // Retry up to 3 times on failure
+    function attemptSubmit(attemptsLeft) {
+      var formData = new FormData();
+      Object.keys(payload).forEach(function(key) { formData.append(key, payload[key]); });
+      fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData })
+        .then(function() { console.log('Order logged successfully.'); })
+        .catch(function(err) {
+          console.warn('Order submit failed, attempts left: ' + attemptsLeft, err);
+          if (attemptsLeft > 1) {
+            setTimeout(function() { attemptSubmit(attemptsLeft - 1); }, 2000);
+          }
+        });
+    }
+    attemptSubmit(3);
   }
 
   function showSuccess(name) {
@@ -749,8 +778,10 @@
           if (result.error) {
             document.getElementById('payment-message').textContent = result.error.message;
           } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-            submitToJotform('', '');
-            showSuccess('');
+            var eName  = document.getElementById('customer-name')  ? document.getElementById('customer-name').value.trim()  : '';
+            var eEmail = document.getElementById('customer-email') ? document.getElementById('customer-email').value.trim() : '';
+            submitToJotform(eName, eEmail);
+            showSuccess(eName);
           }
         });
       });
@@ -783,18 +814,14 @@
     btn.textContent = 'Processing...';
     document.getElementById('payment-message').textContent = '';
 
+    // Capture name & email NOW before any redirect clears the DOM
+    var customerName  = document.getElementById('customer-name')  ? document.getElementById('customer-name').value.trim()  : '';
+    var customerEmail = document.getElementById('customer-email') ? document.getElementById('customer-email').value.trim() : '';
+
     // Save order state before redirect
     saveOrderState();
 
     var returnUrl = window.location.origin + window.location.pathname + '?payment=complete';
-
-    elements.submit().then(function(submitResult) {
-      if (submitResult.error) {
-        btn.disabled = false;
-        btn.textContent = 'Pay Now';
-        document.getElementById('payment-message').textContent = submitResult.error.message;
-        return;
-      }
 
     stripe.confirmPayment({
       elements: elements,
@@ -809,11 +836,10 @@
       if (result.error) {
         document.getElementById('payment-message').textContent = result.error.message;
       } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-        submitToJotform('', '');
-        showSuccess('');
+        submitToJotform(customerName, customerEmail);
+        showSuccess(customerName);
       }
     });
-    }); // end elements.submit
   }
 
   // Handle return from redirect-based payments (Cash App, bank redirects etc)
@@ -825,8 +851,10 @@
       if (clientSecretParam) {
         stripe.retrievePaymentIntent(clientSecretParam).then(function(result) {
           if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-            submitToJotform('', '');
-            showSuccess('');
+            var eName  = document.getElementById('customer-name')  ? document.getElementById('customer-name').value.trim()  : '';
+            var eEmail = document.getElementById('customer-email') ? document.getElementById('customer-email').value.trim() : '';
+            submitToJotform(eName, eEmail);
+            showSuccess(eName);
           } else {
             document.getElementById('payment-message').textContent = 'Payment was not completed. Please try again.';
           }
