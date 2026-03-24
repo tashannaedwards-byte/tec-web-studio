@@ -433,7 +433,7 @@
 <script src="https://js.stripe.com/v3/"></script>
 <script>
   var stripe = Stripe('pk_live_51TDUtoFUlbNwdF4YaCjZiGbEobOmm5XKIUzt6T1zQeMgMdZpzKHLjqaRf92xhJYWz05kwDUAoktYWDxGVxx32Z7n00IGkV75LZ');
-  var VERCEL_FN = 'https://YOUR-VERCEL-APP.vercel.app/api/create-order';
+  var VERCEL_FN = 'https://tec-api.vercel.app/api/create-order';
   var elements, paymentElement, expressElement;
   var clientSecret = null;
 
@@ -794,7 +794,7 @@
       confirmParams: {
         return_url: returnUrl
       },
-      redirect: 'if_required'
+      redirect: 'always'
     }).then(function(result) {
       btn.disabled = false;
       btn.textContent = 'Pay Now';
