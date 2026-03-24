@@ -380,6 +380,15 @@
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  @keyframes errorShake {
+    0%   { transform: translateX(0); }
+    20%  { transform: translateX(-6px); }
+    40%  { transform: translateX(6px); }
+    60%  { transform: translateX(-4px); }
+    80%  { transform: translateX(4px); }
+    100% { transform: translateX(0); }
+  }
+
   @media (max-width: 540px) {
     .form-card { padding: 28px 22px 36px; }
     .form-header { padding: 32px 22px 24px; }
@@ -677,10 +686,21 @@
     return valid;
   }
 
+
+  // ── Scroll to first error ───────────────────────────────────────────────
+  function scrollToFirstError() {
+    const firstError = document.querySelector(".error-msg.visible");
+    if (!firstError) return;
+    const fieldGroup = firstError.closest(".field-group") || firstError.closest(".field-row") || firstError;
+    fieldGroup.scrollIntoView({ behavior: "smooth", block: "center" });
+    firstError.style.animation = "none";
+    firstError.offsetHeight;
+    firstError.style.animation = "errorShake 0.4s ease";
+  }
   // ── Form Submit ─────────────────────────────────────────────────────────
   document.getElementById('inquiryForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) { scrollToFirstError(); return; }
 
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
@@ -710,7 +730,7 @@
 
     try {
       // ⬇ REPLACE THIS URL with your Google Apps Script Web App URL
-      const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNbHQU-dH96BhmDKglulagFgnjSP24yZ5mGJqd9npe09CM45Ur6L77pHSQGBAUqoOM/exec';
+      const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOkdC3T5o86oLUB3R122lQyKHIPH9W8csIb1oInn2bNQ01OZ3UfAYM7OaUyr6gbjb1iQ/exec';
 
       // Send as form-encoded POST
       const formData = new FormData();
