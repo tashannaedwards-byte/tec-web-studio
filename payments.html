@@ -433,7 +433,8 @@
 <script src="https://js.stripe.com/v3/"></script>
 <script>
   var stripe = Stripe('pk_live_51TDUtoFUlbNwdF4YaCjZiGbEobOmm5XKIUzt6T1zQeMgMdZpzKHLjqaRf92xhJYWz05kwDUAoktYWDxGVxx32Z7n00IGkV75LZ');
-  var VERCEL_FN = 'https://YOUR-VERCEL-APP.vercel.app/api/create-order';
+  // ⚠️ IMPORTANT: Replace the URL below with your actual Vercel deployment URL
+  var VERCEL_FN = 'https://tec-api.vercel.app/api/create-order';
   var elements, paymentElement, expressElement;
   var clientSecret = null;
 
@@ -690,15 +691,42 @@
       var formData = new FormData();
       Object.keys(payload).forEach(function(key) { formData.append(key, payload[key]); });
       fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData })
-        .then(function() { console.log('Order logged successfully.'); })
+        .then(function() {
+          console.log('Order logged successfully.');
+          // Send receipt email only after successful log
+          if (finalEmail && finalEmail !== 'Not provided') {
+            sendReceiptEmail(finalName, finalEmail, finalPackage, finalTotal, finalAddOns, finalHosting);
+          }
+        })
         .catch(function(err) {
           console.warn('Order submit failed, attempts left: ' + attemptsLeft, err);
           if (attemptsLeft > 1) {
             setTimeout(function() { attemptSubmit(attemptsLeft - 1); }, 2000);
+          } else {
+            // Even if logging fails, still try to send the receipt
+            if (finalEmail && finalEmail !== 'Not provided') {
+              sendReceiptEmail(finalName, finalEmail, finalPackage, finalTotal, finalAddOns, finalHosting);
+            }
           }
         });
     }
     attemptSubmit(3);
+  }
+
+  function sendReceiptEmail(name, email, pkg, total, addOns, hosting) {
+    // Uses the same Apps Script endpoint with a different formType to trigger the email receipt
+    var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOkdC3T5o86oLUB3R122lQyKHIPH9W8csIb1oInn2bNQ01OZ3UfAYM7OaUyr6gbjb1iQ/exec';
+    var formData = new FormData();
+    formData.append('formType',   'Receipt');
+    formData.append('fullName',   name);
+    formData.append('email',      email);
+    formData.append('package',    pkg);
+    formData.append('orderTotal', total);
+    formData.append('addOns',     addOns);
+    formData.append('hosting',    hosting);
+    fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData })
+      .then(function() { console.log('Receipt email triggered for ' + email); })
+      .catch(function(err) { console.warn('Receipt email failed:', err); });
   }
 
   function showSuccess(name) {
@@ -742,10 +770,19 @@
 
   function _initStripe() {
     var amountCents = Math.round(currentTotal * 100);
+    // Capture name/email at the moment Stripe is initialised (before any redirect)
+    var initName  = document.getElementById('customer-name')  ? document.getElementById('customer-name').value.trim()  : '';
+    var initEmail = document.getElementById('customer-email') ? document.getElementById('customer-email').value.trim() : '';
     fetch(VERCEL_FN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: amountCents, description: buildDescription(), currency: 'usd' })
+      body: JSON.stringify({
+        amount: amountCents,
+        description: buildDescription(),
+        currency: 'usd',
+        customerName:  initName,
+        customerEmail: initEmail
+      })
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -767,19 +804,30 @@
       expressElement.mount('#express-checkout-element');
 
       expressElement.on('confirm', function(event) {
-        // Save order state before redirect
+        // Capture name/email and save order state BEFORE any redirect
+        var eName  = document.getElementById('customer-name')  ? document.getElementById('customer-name').value.trim()  : '';
+        var eEmail = document.getElementById('customer-email') ? document.getElementById('customer-email').value.trim() : '';
         saveOrderState();
         var returnUrl = window.location.origin + window.location.pathname + '?payment=complete';
+        // For Express Checkout (Apple Pay/Google Pay), must use redirect:'if_required'
+        // and pass billing_details so card path and Apple Pay path both capture name/email
         stripe.confirmPayment({
           elements: elements,
           clientSecret: clientSecret,
-          confirmParams: { return_url: returnUrl }
+          confirmParams: {
+            return_url: returnUrl,
+            payment_method_data: {
+              billing_details: {
+                name:  eName  || undefined,
+                email: eEmail || undefined
+              }
+            }
+          },
+          redirect: 'if_required'
         }).then(function(result) {
           if (result.error) {
             document.getElementById('payment-message').textContent = result.error.message;
           } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-            var eName  = document.getElementById('customer-name')  ? document.getElementById('customer-name').value.trim()  : '';
-            var eEmail = document.getElementById('customer-email') ? document.getElementById('customer-email').value.trim() : '';
             submitToJotform(eName, eEmail);
             showSuccess(eName);
           }
