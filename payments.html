@@ -433,7 +433,7 @@
 <script src="https://js.stripe.com/v3/"></script>
 <script>
   var stripe = Stripe('pk_live_51TDUtoFUlbNwdF4YaCjZiGbEobOmm5XKIUzt6T1zQeMgMdZpzKHLjqaRf92xhJYWz05kwDUAoktYWDxGVxx32Z7n00IGkV75LZ');
-  var VERCEL_FN = 'https://YOUR-VERCEL-APP.vercel.app/api/create-order';
+  var VERCEL_FN = 'https://tec-api.vercel.app/api/create-order';
   var elements, paymentElement, expressElement;
   var clientSecret = null;
 
@@ -788,32 +788,22 @@
 
     var returnUrl = window.location.origin + window.location.pathname + '?payment=complete';
 
-    // Required by Stripe v3 — must call elements.submit() before confirmPayment()
-    elements.submit().then(function(submitResult) {
-      if (submitResult.error) {
-        btn.disabled = false;
-        btn.textContent = 'Pay Now';
-        document.getElementById('payment-message').textContent = submitResult.error.message;
-        return;
+    stripe.confirmPayment({
+      elements: elements,
+      clientSecret: clientSecret,
+      confirmParams: {
+        return_url: returnUrl
+      },
+      redirect: 'if_required'
+    }).then(function(result) {
+      btn.disabled = false;
+      btn.textContent = 'Pay Now';
+      if (result.error) {
+        document.getElementById('payment-message').textContent = result.error.message;
+      } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+        submitToJotform('', '');
+        showSuccess('');
       }
-
-      stripe.confirmPayment({
-        elements: elements,
-        clientSecret: clientSecret,
-        confirmParams: {
-          return_url: returnUrl
-        },
-        redirect: 'if_required'
-      }).then(function(result) {
-        btn.disabled = false;
-        btn.textContent = 'Pay Now';
-        if (result.error) {
-          document.getElementById('payment-message').textContent = result.error.message;
-        } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-          submitToJotform('', '');
-          showSuccess('');
-        }
-      });
     });
   }
 
