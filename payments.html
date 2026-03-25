@@ -871,22 +871,40 @@
 
     var returnUrl = window.location.origin + window.location.pathname + '?payment=complete';
 
-    stripe.confirmPayment({
-      elements: elements,
-      clientSecret: clientSecret,
-      confirmParams: {
-        return_url: returnUrl
-      },
-      redirect: 'if_required'
-    }).then(function(result) {
-      btn.disabled = false;
-      btn.textContent = 'Pay Now';
-      if (result.error) {
-        document.getElementById('payment-message').textContent = result.error.message;
-      } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
-        submitToJotform(customerName, customerEmail);
-        showSuccess(customerName);
+    // Stripe requires elements.submit() to be called first to validate
+    // and collect the Payment Element data before confirmPayment()
+    elements.submit().then(function(submitResult) {
+      if (submitResult.error) {
+        // Validation error (e.g. incomplete card number) — reset button and show message
+        btn.disabled = false;
+        btn.textContent = 'Pay Now';
+        document.getElementById('payment-message').textContent = submitResult.error.message;
+        return;
       }
+
+      stripe.confirmPayment({
+        elements: elements,
+        clientSecret: clientSecret,
+        confirmParams: {
+          return_url: returnUrl,
+          payment_method_data: {
+            billing_details: {
+              name:  customerName  || undefined,
+              email: customerEmail || undefined
+            }
+          }
+        },
+        redirect: 'if_required'
+      }).then(function(result) {
+        btn.disabled = false;
+        btn.textContent = 'Pay Now';
+        if (result.error) {
+          document.getElementById('payment-message').textContent = result.error.message;
+        } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+          submitToJotform(customerName, customerEmail);
+          showSuccess(customerName);
+        }
+      });
     });
   }
 
