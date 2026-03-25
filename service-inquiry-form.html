@@ -395,9 +395,33 @@
     .field-row { grid-template-columns: 1fr; }
     .options-grid { grid-template-columns: 1fr; }
   }
+  /* ── Validation toast ── */
+  #validationToast {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #c0392b;
+    color: #ffffff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 50px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+    z-index: 9999;
+    white-space: nowrap;
+    animation: toastIn 0.3s ease;
+  }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
 </style>
 </head>
 <body>
+<div id="validationToast">⚠️ Please fill out all required fields before submitting.</div>
 <div class="form-wrapper">
   <div class="form-header">
     <div class="badge">TEC Web Studio</div>
@@ -562,9 +586,7 @@
       </div>
 
       <button type="submit" class="submit-btn" id="submitBtn">Submit</button>
-      <p id="formErrorSummary" style="display:none;margin-top:14px;color:#c0392b;font-size:13px;font-weight:600;text-align:center;line-height:1.6;">
-        ⚠️ Please fill in all required fields highlighted above before submitting.
-      </p>
+
     </form>
   </div>
 </div>
@@ -703,13 +725,14 @@
   // ── Form Submit ─────────────────────────────────────────────────────────
   document.getElementById('inquiryForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const errorSummary = document.getElementById('formErrorSummary');
     if (!validateForm()) {
-      errorSummary.style.display = 'block';
+      // Show fixed toast at top of screen
+      const toast = document.getElementById('validationToast');
+      toast.style.display = 'block';
+      setTimeout(function() { toast.style.display = 'none'; }, 4000);
       scrollToFirstError();
       return;
     }
-    errorSummary.style.display = 'none';
 
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
