@@ -562,6 +562,9 @@
       </div>
 
       <button type="submit" class="submit-btn" id="submitBtn">Submit</button>
+      <p id="formErrorSummary" style="display:none;margin-top:14px;color:#c0392b;font-size:13px;font-weight:600;text-align:center;line-height:1.6;">
+        ⚠️ Please fill in all required fields highlighted above before submitting.
+      </p>
     </form>
   </div>
 </div>
@@ -700,7 +703,13 @@
   // ── Form Submit ─────────────────────────────────────────────────────────
   document.getElementById('inquiryForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    if (!validateForm()) { scrollToFirstError(); return; }
+    const errorSummary = document.getElementById('formErrorSummary');
+    if (!validateForm()) {
+      errorSummary.style.display = 'block';
+      scrollToFirstError();
+      return;
+    }
+    errorSummary.style.display = 'none';
 
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
@@ -730,7 +739,7 @@
 
     try {
       // ⬇ REPLACE THIS URL with your Google Apps Script Web App URL
-      const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOkdC3T5o86oLUB3R122lQyKHIPH9W8csIb1oInn2bNQ01OZ3UfAYM7OaUyr6gbjb1iQ/exec';
+      const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNbHQU-dH96BhmDKglulagFgnjSP24yZ5mGJqd9npe09CM45Ur6L77pHSQGBAUqoOM/exec';
 
       // Send as form-encoded POST
       const formData = new FormData();
