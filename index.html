@@ -2104,8 +2104,10 @@ footer {
           Object.keys(payload).forEach(function(key) {
             formData.append(key, payload[key]);
           });
-          fetch(APPS_SCRIPT_URL, {
+          fetch('https://script.google.com/macros/s/YOUR_OLD_ID/exec', {
             method: 'POST',
+            ...
+              })
             mode: 'no-cors',
             body: formData
           }).catch(function(err) { console.log('Fetch error:', err); });
