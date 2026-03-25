@@ -1363,13 +1363,6 @@ footer {
 </head>
 <body>
 
-<script>
-// ── Mobile menu (standalone — must load before hamburger is clicked) ──
-function toggleMenu() {
-  document.getElementById('mobileMenu').classList.toggle('open');
-}
-</script>
-
 <!-- ── NAV ─────────────────────────────────────────── -->
 <header>
   <nav>
@@ -1403,6 +1396,7 @@ function toggleMenu() {
       <div class="hero-eyebrow">Web Design for Small Businesses</div>
       <h1>Your business deserves a website that <em>actually works</em></h1>
       <p class="hero-sub">We build clean, fast, and conversion-focused websites for small businesses, service providers, and organizations — no bloat, no fluff, just results.</p>
+      <p style="font-family: Georgia, serif; font-size: 17px; color: #f5c842; font-style: italic; margin: 0 0 20px;">See your site before you pay for it.</p>
       <div class="hero-actions">
         <a href="#contact" class="btn-primary">Request a Free Preview</a>
         <a href="#work" class="btn-ghost">See our work</a>
@@ -1627,12 +1621,12 @@ function toggleMenu() {
         <div class="testimonial-stars">
           <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
         </div>
-        <p class="testimonial-quote">"We were so embarrassed to share our old website. Now we actually send it to customers when they ask. It looks exactly like we hoped."</p>
+        <p class="testimonial-quote">"we was embarrassed to share my old website. Now we actually send it to customers when they ask. It looks exactly like we hoped."</p>
         <div class="testimonial-author">
-          <div class="author-avatar av-teal">CL</div>
+          <div class="author-avatar av-teal">OB</div>
           <div>
-            <p class="author-name">Teacher</p>
-            <p class="author-biz">Edcuation, U.S.</p>
+            <p class="author-name">O.B.</p>
+            <p class="author-biz">SDW Therapy, Groton CT</p>
           </div>
         </div>
       </div>
@@ -1646,19 +1640,6 @@ function toggleMenu() {
           <div>
             <p class="author-name">LD Manager</p>
             <p class="author-biz">Liquid Dough, U.S.</p>
-          </div>
-        </div>
-      </div>
-          <div class="testimonial-card">
-        <div class="testimonial-stars">
-          <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-        </div>
-        <p class="testimonial-quote">"TEC Web Studio works quickly and offers reasonable pricing. They understood my vision and didn't just build a website, but they brought my ideas to life in a way that felt authentic to our brand. It was a professional, responsive, smooth and a stress-free process. Highly recommend!"</p>
-        <div class="testimonial-author">
-          <div class="author-avatar av-blue">OB</div>
-          <div>
-            <p class="author-name">Octavia B.</p>
-            <p class="author-biz">SDW Therapy, Connecticut</p>
           </div>
         </div>
       </div>
@@ -1692,7 +1673,7 @@ function toggleMenu() {
     <div class="pricing-reveal-banner" style="margin-bottom:48px;">
       <div>
         <h3>🎉 Thanks for reaching out!</h3>
-        <p>We will follow up in the next 24 hours with your personalized package recommendation, followed by a free preview. In the meantime, take a look at some of the sites we've built!</p>
+        <p>We'll follow up shortly with your personalized package recommendation and free preview. In the meantime, take a look at some of the sites we've built!</p>
       </div>
     </div>
 
@@ -1866,7 +1847,7 @@ function toggleMenu() {
         <div class="ifs-success" id="ifsSuccess">
           <div class="ifs-success-icon">✨</div>
           <h3>We've received your inquiry!</h3>
-          <p>Check your inbox — we've sent you a personalized package recommendation. We'll follow up shortly with your free preview!</p>
+          <p>Check your inbox — we've sent you a personalized package recommendation. We'll review your project and put together a free concept — a real look at what your site could be — before you ever spend a dime. Expect to hear from us within 24 hours.</p>
         </div>
 
         <form id="ifsForm" novalidate>
@@ -2171,6 +2152,10 @@ function toggleMenu() {
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ── Mobile menu ──────────────────────────────────────
+function toggleMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
 
 // ── Reveal pricing after Jotform submit ──────────────
 window.addEventListener('message', function(e) {
