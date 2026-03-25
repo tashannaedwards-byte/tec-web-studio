@@ -875,7 +875,6 @@ nav {
 .av-blue { background: #4f7ac7; }
 .av-teal { background: var(--teal); }
 .av-purple { background: #8b5cf6; }
-.av-gold { background: #c9963a; }
 
 .author-name { font-size: 13px; font-weight: 600; color: white; }
 .author-biz { font-size: 12px; color: rgba(255,255,255,0.90); margin-top: 1px; }
@@ -1613,7 +1612,7 @@ footer {
           <div class="author-avatar av-blue">AH</div>
           <div>
             <p class="author-name">A.H.C.</p>
-            <p class="author-biz">The CCG, MA</p>
+            <p class="author-biz">The CCG, Lancaster MA</p>
           </div>
         </div>
       </div>
@@ -1621,12 +1620,12 @@ footer {
         <div class="testimonial-stars">
           <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
         </div>
-        <p class="testimonial-quote">"We were so embarrassed to share my old website. Now we actually send it to customers when they ask. It looks exactly like we hoped."</p>
+        <p class="testimonial-quote">"we was embarrassed to share my old website. Now we actually send it to customers when they ask. It looks exactly like we hoped."</p>
         <div class="testimonial-author">
-          <div class="author-avatar av-teal">TC</div>
+          <div class="author-avatar av-teal">OB</div>
           <div>
-            <p class="author-name">Client</p>
-            <p class="author-biz">Education, US</p>
+            <p class="author-name">O.B.</p>
+            <p class="author-biz">SDW Therapy, Groton CT</p>
           </div>
         </div>
       </div>
@@ -1640,19 +1639,6 @@ footer {
           <div>
             <p class="author-name">LD Manager</p>
             <p class="author-biz">Liquid Dough, U.S.</p>
-          </div>
-        </div>
-      </div>
-      <div class="testimonial-card">
-        <div class="testimonial-stars">
-          <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-        </div>
-        <p class="testimonial-quote">"I had an amazing experience working with TEC Web Studio on my business website. They are incredibly knowledgeable, work quickly and offer reasonable pricing! The entire process was smooth and stress free. Highly recommend!"</p>
-        <div class="testimonial-author">
-          <div class="author-avatar av-gold">OB</div>
-          <div>
-            <p class="author-name">O.B.</p>
-            <p class="author-biz">SDW Therapy, CT</p>
           </div>
         </div>
       </div>
@@ -1686,7 +1672,7 @@ footer {
     <div class="pricing-reveal-banner" style="margin-bottom:48px;">
       <div>
         <h3>🎉 Thanks for reaching out!</h3>
-        <p>In the next 24 hours, we'll follow up shortly with your personalized package recommendation followed by and free preview. In the meantime, take a look at some of the sites we've built!</p>
+        <p>We'll follow up shortly with your personalized package recommendation and free preview. In the meantime, take a look at some of the sites we've built!</p>
       </div>
     </div>
 
@@ -1977,7 +1963,7 @@ footer {
 
       <script>
       (function() {
-        var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOkdC3T5o86oLUB3R122lQyKHIPH9W8csIb1oInn2bNQ01OZ3UfAYM7OaUyr6gbjb1iQ/exec';
+        var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNbHQU-dH96BhmDKglulagFgnjSP24yZ5mGJqd9npe09CM45Ur6L77pHSQGBAUqoOM/exec';
 
         // Existing site conditionals
         document.querySelectorAll('input[name="ifsExisting"]').forEach(function(r) {
@@ -2104,10 +2090,8 @@ footer {
           Object.keys(payload).forEach(function(key) {
             formData.append(key, payload[key]);
           });
-          fetch('https://script.google.com/macros/s/AKfycbwNbHQU-dH96BhmDKglulagFgnjSP24yZ5mGJqd9npe09CM45Ur6L77pHSQGBAUqoOM/exec', {
+          fetch(APPS_SCRIPT_URL, {
             method: 'POST',
-            ...
-              })
             mode: 'no-cors',
             body: formData
           }).catch(function(err) { console.log('Fetch error:', err); });
