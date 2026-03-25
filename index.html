@@ -1363,6 +1363,13 @@ footer {
 </head>
 <body>
 
+<script>
+// ── Mobile menu (standalone — must load before hamburger is clicked) ──
+function toggleMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+</script>
+
 <!-- ── NAV ─────────────────────────────────────────── -->
 <header>
   <nav>
@@ -1963,7 +1970,7 @@ footer {
 
       <script>
       (function() {
-        var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNbHQU-dH96BhmDKglulagFgnjSP24yZ5mGJqd9npe09CM45Ur6L77pHSQGBAUqoOM/exec';
+        var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOkdC3T5o86oLUB3R122lQyKHIPH9W8csIb1oInn2bNQ01OZ3UfAYM7OaUyr6gbjb1iQ/exec';
 
         // Existing site conditionals
         document.querySelectorAll('input[name="ifsExisting"]').forEach(function(r) {
@@ -2151,10 +2158,6 @@ footer {
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-// ── Mobile menu ──────────────────────────────────────
-function toggleMenu() {
-  document.getElementById('mobileMenu').classList.toggle('open');
-}
 
 // ── Reveal pricing after Jotform submit ──────────────
 window.addEventListener('message', function(e) {
