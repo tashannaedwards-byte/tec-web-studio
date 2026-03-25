@@ -630,19 +630,20 @@
   }
 
   function submitToJotform(name, email) {
-    var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOkdC3T5o86oLUB3R122lQyKHIPH9W8csIb1oInn2bNQ01OZ3UfAYM7OaUyr6gbjb1iQ/exec';
+    var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNbHQU-dH96BhmDKglulagFgnjSP24yZ5mGJqd9npe09CM45Ur6L77pHSQGBAUqoOM/exec';
 
     // Try to restore from sessionStorage first (needed after redirect-based payments)
     var savedOrder = null;
     try { savedOrder = JSON.parse(sessionStorage.getItem('tec_order') || 'null'); } catch(e) {}
 
-    // Read live DOM fields
-    var capturedName  = document.getElementById('customer-name')  ? document.getElementById('customer-name').value.trim()  : '';
-    var capturedEmail = document.getElementById('customer-email') ? document.getElementById('customer-email').value.trim() : '';
+    // Priority: passed params (already captured before DOM changes) > sessionStorage > DOM fallback
+    // NOTE: do NOT re-read the DOM here as the first priority — showSuccess() may have already
+    // replaced the payment section and destroyed the input fields before this runs.
+    var domName  = document.getElementById('customer-name')  ? document.getElementById('customer-name').value.trim()  : '';
+    var domEmail = document.getElementById('customer-email') ? document.getElementById('customer-email').value.trim() : '';
 
-    // Priority: live DOM > sessionStorage > passed params > fallback
-    var finalName    = capturedName  || (savedOrder ? savedOrder.name  : '') || name  || 'Not provided';
-    var finalEmail   = capturedEmail || (savedOrder ? savedOrder.email : '') || email || 'Not provided';
+    var finalName    = name  || (savedOrder ? savedOrder.name  : '') || domName  || 'Not provided';
+    var finalEmail   = email || (savedOrder ? savedOrder.email : '') || domEmail || 'Not provided';
 
     // Package key resolution
     var pkgKey = selectedPackage === 'glowup'      ? (glowupSize === 'lg' ? 'glowup_lg' : 'glowup')
@@ -715,7 +716,7 @@
 
   function sendReceiptEmail(name, email, pkg, total, addOns, hosting) {
     // Uses the same Apps Script endpoint with a different formType to trigger the email receipt
-    var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxOkdC3T5o86oLUB3R122lQyKHIPH9W8csIb1oInn2bNQ01OZ3UfAYM7OaUyr6gbjb1iQ/exec';
+    var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNbHQU-dH96BhmDKglulagFgnjSP24yZ5mGJqd9npe09CM45Ur6L77pHSQGBAUqoOM/exec';
     var formData = new FormData();
     formData.append('formType',   'Receipt');
     formData.append('fullName',   name);
