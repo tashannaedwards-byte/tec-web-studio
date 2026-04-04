@@ -1708,7 +1708,16 @@ footer {
       <div>
         <h3>🎉 Thanks for reaching out!</h3>
         <p>We'll follow up in the next 24 hours with your personalized package recommendation.</p>
-        <p> <!--Start of Tawk.to Script-->
+        <p> // After form submits successfully, open Tawk chat
+Tawk_API.onLoad = function() {
+  Tawk_API.hideWidget(); // hidden by default
+};
+
+// Call this function on form success
+function openChatAfterSubmit() {
+  Tawk_API.showWidget();
+  Tawk_API.maximize();
+}<!--Start of Tawk.to Script-->
 <script type="text/javascript">
 var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
 (function(){
