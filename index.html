@@ -884,7 +884,7 @@ nav {
 
 /* ── PRICING — HIDDEN, REVEALED AFTER INQUIRY ───── */
 #pricing {
-  display: none; /* Hidden by default — revealed after form submission */
+  display: none;
   background: var(--warm);
   border-top: 1px solid var(--border);
 }
@@ -1093,7 +1093,7 @@ nav {
 .about-body p:last-child { margin-bottom: 0; }
 .about-body strong { color: var(--teal-deep); font-weight: 600; }
 
-/* ── CONTACT / JOTFORM ───────────────────────────── */
+/* ── CONTACT ───────────────────────────────────── */
 .contact-wrap {
   background: var(--teal-light);
   border-top: 1px solid var(--border);
@@ -1555,7 +1555,6 @@ footer {
   </div>
 </section>
 
-
 <!-- ── PORTFOLIO ──────────────────────────────────────── -->
 <section id="work" class="section">
   <p class="section-eyebrow">Recent Work</p>
@@ -1663,7 +1662,7 @@ footer {
           </div>
         </div>
       </div>
-          <div class="testimonial-card">
+      <div class="testimonial-card">
         <div class="testimonial-stars">
           <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
         </div>
@@ -1679,7 +1678,6 @@ footer {
     </div>
   </div>
 </div>
-
 
 <!-- ── PRICING TEASER ─────────────────────────────────── -->
 <section class="section" style="padding-bottom:40px;">
@@ -1703,33 +1701,14 @@ footer {
     <h2 class="section-title">Straightforward pricing.<br><em>No surprises.</em></h2>
     <p class="section-sub" style="margin-top:12px;">Our packages start at <strong>$100</strong> — your personalized recommendation and full pricing details will arrive to your inbox in the next 24 hours.</p>
 
-   <!-- Thank you banner -->
-<div class="pricing-reveal-banner" style="margin-bottom:48px;">
-  <div>
-    <h3>🎉 Thanks for reaching out!</h3>
-    <p>We'll follow up in the next 24 hours with your personalized package recommendation.</p>
-    <p>In the meantime, if you'd like to chat live about your project — we're here!</p>
-  </div>
-</div>
-
-<!--Start of Tawk.to Script-->
-<script type="text/javascript">
-var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-(function(){
-  var s1 = document.createElement("script"),
-      s0 = document.getElementsByTagName("script")[0];
-  s1.async = true;
-  s1.src = 'https://embed.tawk.to/69d064378153c41c3b4dd63f/1jlb0eu0v';
-  s1.charset = 'UTF-8';
-  s1.setAttribute('crossorigin', '*');
-  s0.parentNode.insertBefore(s1, s0);
-})();
-// Hide chat until form is submitted
-Tawk_API.onLoad = function() {
-  Tawk_API.hideWidget();
-};
-</script>
-<!--End of Tawk.to Script-->
+    <!-- Thank you banner -->
+    <div class="pricing-reveal-banner" style="margin-bottom:48px;">
+      <div>
+        <h3>🎉 Thanks for reaching out!</h3>
+        <p>We'll follow up in the next 24 hours with your personalized package recommendation.</p>
+        <p>In the meantime, if you'd like to chat live about your project — we're here!</p>
+      </div>
+    </div>
 
     <!-- Portfolio links -->
     <div style="text-align:center;margin-bottom:16px;">
@@ -1762,7 +1741,7 @@ Tawk_API.onLoad = function() {
   </div>
 </section>
 
-<!-- ── CONTACT / JOTFORM ──────────────────────────────── -->
+<!-- ── CONTACT ──────────────────────────────────────── -->
 <div id="contact" class="contact-wrap">
   <div class="contact-inner">
     <div>
@@ -1787,8 +1766,8 @@ Tawk_API.onLoad = function() {
         <div class="contact-info-item">
           <div class="info-icon">★</div>
           <div class="info-text">
-            <strong>Complimentary preview guaranteed</strong>
-            <span>Ready to get started? Fill out the form and then chat with us live and qualified clients receive a complimentary mock-up!*</span>
+            <strong>Complimentary preview for ready clients</strong>
+            <span>Ready to move forward? Fill out the form and chat with us live — qualified clients receive a complimentary mock-up.*</span>
           </div>
         </div>
         <div class="contact-info-item">
@@ -1804,7 +1783,6 @@ Tawk_API.onLoad = function() {
     <!-- CUSTOM FORM EMBED -->
     <div class="form-embed-wrap">
       <div id="inquiry-form-container">
-        <!-- Form styles scoped inside container -->
         <style>
           #inquiry-form-container { font-family: 'DM Sans', sans-serif; }
           .ifs-field { margin-bottom: 18px; }
@@ -1933,7 +1911,7 @@ Tawk_API.onLoad = function() {
             <div class="ifs-errmsg" id="ifsCompanyErr">Please enter your company name.</div>
           </div>
 
-          <!-- Existing site question — NEW -->
+          <!-- Existing site question -->
           <div class="ifs-field">
             <label class="ifs-label">Do you already have an existing website? <span class="req">*</span></label>
             <div class="ifs-opts single">
@@ -1943,7 +1921,7 @@ Tawk_API.onLoad = function() {
             <div class="ifs-errmsg" id="ifsExistingErr">Please select an option.</div>
           </div>
 
-          <!-- Service (only shown if NO existing site) -->
+          <!-- Service -->
           <div class="ifs-field" id="ifsSvcGroup">
             <label class="ifs-label">What kind of service do you need? <span class="req">*</span></label>
             <div class="ifs-opts">
@@ -1979,7 +1957,7 @@ Tawk_API.onLoad = function() {
           <!-- Time sensitive banner -->
           <div class="ifs-ts-banner" id="ifsTsBanner"><strong>Time Sensitive!</strong> If you need the completed work as soon as possible, an additional $75 expedited fee will apply.</div>
 
-          <!-- Content written (hidden for Signature Build) -->
+          <!-- Content written -->
           <div class="ifs-field hidden" id="ifsContentGroup">
             <label class="ifs-label">Do you need content written? <span class="req">*</span></label>
             <div class="ifs-opts single">
@@ -1989,7 +1967,7 @@ Tawk_API.onLoad = function() {
             <div class="ifs-errmsg" id="ifsContentErr">Please select an option.</div>
           </div>
 
-          <!-- Pages needed (hidden for Signature Build) -->
+          <!-- Pages needed -->
           <div class="ifs-field hidden" id="ifsPagesGroup">
             <label class="ifs-label">Pages needed <span class="req">*</span></label>
             <div class="ifs-opts single">
@@ -2000,7 +1978,7 @@ Tawk_API.onLoad = function() {
             <div class="ifs-errmsg" id="ifsPagesErr">Please select an option.</div>
           </div>
 
-          <!-- Special features (hidden for Signature Build) -->
+          <!-- Special features -->
           <div class="ifs-field hidden" id="ifsFeaturesGroup">
             <label class="ifs-label">Any special features or enhancements? <span class="req">*</span></label>
             <div class="ifs-opts">
@@ -2020,7 +1998,6 @@ Tawk_API.onLoad = function() {
       (function() {
         var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwNbHQU-dH96BhmDKglulagFgnjSP24yZ5mGJqd9npe09CM45Ur6L77pHSQGBAUqoOM/exec';
 
-        // Existing site conditionals
         document.querySelectorAll('input[name="ifsExisting"]').forEach(function(r) {
           r.addEventListener('change', updateCond);
         });
@@ -2037,27 +2014,20 @@ Tawk_API.onLoad = function() {
           var svc = document.querySelector('input[name="ifsSvc"]:checked');
           var isSig = svc && svc.value === 'The Signature Build';
 
-          // Show service question only if NO existing site
           var svcGroup = document.getElementById('ifsSvcGroup');
-          // Show service group only when No is selected; hide when Yes or nothing selected
           var showSvcGroup = existing && existing.value === 'No';
           svcGroup.classList.toggle('hidden', !showSvcGroup);
           if (hasExisting) {
             document.querySelectorAll('input[name="ifsSvc"]').forEach(function(r){ r.checked=false; });
           }
 
-          // Show content/pages/features if:
-          // - existing site (always show these)
-          // - no existing site AND not Signature Build
           var showSubQ = existing && !isSig;
           document.getElementById('ifsContentGroup').classList.toggle('hidden', !showSubQ);
           document.getElementById('ifsPagesGroup').classList.toggle('hidden', !showSubQ);
           document.getElementById('ifsFeaturesGroup').classList.toggle('hidden', !showSubQ);
 
-          // Signature Build caption
           document.getElementById('ifsSigCaption').classList.toggle('show', isSig && !hasExisting);
 
-          // Clear hidden fields
           if (!showSubQ) {
             document.querySelectorAll('input[name="ifsContent"]').forEach(function(r){ r.checked=false; });
             document.querySelectorAll('input[name="ifsPages"]').forEach(function(r){ r.checked=false; });
@@ -2065,7 +2035,6 @@ Tawk_API.onLoad = function() {
           }
         }
 
-        // Validation helpers
         function showErr(id, errId, show) {
           var el = document.getElementById(id);
           var er = document.getElementById(errId);
@@ -2092,7 +2061,6 @@ Tawk_API.onLoad = function() {
           showGroupErr('ifsExistingErr',!existing); if(!existing) ok=false;
           var hasExisting = existing && existing.value === 'Yes';
           var svc = document.querySelector('input[name="ifsSvc"]:checked');
-          // Only require service if no existing site
           if (!hasExisting) {
             showGroupErr('ifsSvcErr',!svc); if(!svc) ok=false;
           }
@@ -2101,7 +2069,6 @@ Tawk_API.onLoad = function() {
           var tl = document.getElementById('ifsTl').value;
           showErr('ifsTl','ifsTlErr',!tl); if(!tl) ok=false;
           var isSig = svc && svc.value === 'The Signature Build';
-          // Require content/pages/features if existing site OR (no existing site AND not Signature Build)
           if (existing && !isSig) {
             var cw = document.querySelector('input[name="ifsContent"]:checked');
             showGroupErr('ifsContentErr',!cw); if(!cw) ok=false;
@@ -2139,8 +2106,6 @@ Tawk_API.onLoad = function() {
             pagesNeeded: showSubQ ? (document.querySelector('input[name="ifsPages"]:checked') ? document.querySelector('input[name="ifsPages"]:checked').value : '') : 'N/A',
             features: feats.join(', ') || 'N/A'
           };
-          // Submit via hidden form to bypass CORS
-          // Send as form-encoded POST via fetch
           var formData = new FormData();
           Object.keys(payload).forEach(function(key) {
             formData.append(key, payload[key]);
@@ -2151,14 +2116,22 @@ Tawk_API.onLoad = function() {
             body: formData
           }).catch(function(err) { console.log('Fetch error:', err); });
           setTimeout(function() {
-              document.getElementById('ifsForm').style.display = 'none';
-              document.getElementById('ifsSuccess').classList.add('show');
-              // Reveal pricing section
-              var pricing = document.getElementById('pricing');
-              if (pricing) { pricing.style.display = 'block'; pricing.scrollIntoView({ behavior: 'smooth' }); }
-              // Show toast
-              var toast = document.getElementById('toast');
-              if (toast) { toast.classList.add('show'); setTimeout(function(){ toast.classList.remove('show'); }, 4000); }
+            document.getElementById('ifsForm').style.display = 'none';
+            document.getElementById('ifsSuccess').classList.add('show');
+            // Reveal pricing section
+            var pricing = document.getElementById('pricing');
+            if (pricing) {
+              pricing.style.display = 'block';
+              pricing.scrollIntoView({ behavior: 'smooth' });
+              // ── TAWK: show and open chat only after form submit ──
+              if (typeof Tawk_API !== 'undefined') {
+                Tawk_API.showWidget();
+                Tawk_API.maximize();
+              }
+            }
+            // Show toast
+            var toast = document.getElementById('toast');
+            if (toast) { toast.classList.add('show'); setTimeout(function(){ toast.classList.remove('show'); }, 4000); }
           }, 1500);
         });
       })();
@@ -2205,10 +2178,29 @@ Tawk_API.onLoad = function() {
   Form submitted! Check your email for your recommended package. 📧
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
-  <script>
-  // -- Mobile menu
+<!-- ── TAWK.TO CHAT (hidden until form submitted) ──────── -->
+<script type="text/javascript">
+var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+(function(){
+  var s1 = document.createElement("script"),
+      s0 = document.getElementsByTagName("script")[0];
+  s1.async = true;
+  s1.src = 'https://embed.tawk.to/69d064378153c41c3b4dd63f/1jlb0eu0v';
+  s1.charset = 'UTF-8';
+  s1.setAttribute('crossorigin', '*');
+  s0.parentNode.insertBefore(s1, s0);
+})();
+// Hide the widget on load — only show after form submission
+Tawk_API.onLoad = function() {
+  Tawk_API.hideWidget();
+};
+</script>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script>
   function toggleMenu() {
     document.getElementById('mobileMenu').classList.toggle('open');
   }
 </script>
+</body>
+</html>
