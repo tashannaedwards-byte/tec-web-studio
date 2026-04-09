@@ -2153,10 +2153,11 @@ footer {
               pricing.style.display = 'block';
               pricing.scrollIntoView({ behavior: 'smooth' });
               // ── TAWK: show and open chat only after form submit ──
-              if (typeof Tawk_API !== 'undefined') {
-                Tawk_API.showWidget();
-                Tawk_API.maximize();
-              }
+              // TEMPORARILY DISABLED — re-enable with the Tawk.to script block
+              // if (typeof Tawk_API !== 'undefined') {
+              //   Tawk_API.showWidget();
+              //   Tawk_API.maximize();
+              // }
             }
             // Show toast
             var toast = document.getElementById('toast');
@@ -2208,6 +2209,7 @@ footer {
 </div>
 
 <!-- ── TAWK.TO CHAT (hidden until form submitted) ──────── -->
+<!-- TEMPORARILY DISABLED — re-enable when back from vacation by removing these comment tags
 <script type="text/javascript">
 var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
 (function(){
@@ -2224,6 +2226,7 @@ Tawk_API.onLoad = function() {
   Tawk_API.hideWidget();
 };
 </script>
+-->
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script>
